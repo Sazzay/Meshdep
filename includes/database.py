@@ -24,4 +24,25 @@ class Database:
 			print("[DB] Connection failed.")
 
 	def __repr__(self):
-		return (IP, PORT, USER, PASS)
+		return {'ip':self.IP, 'db':self.DB}
+
+	def __del__(self):
+		try:
+			CONN.close()
+		except:
+			continue
+
+	def queryFileAddition(self):
+		# this function should query the database
+		# to add relevant information about
+		# the file that is being added to a node
+		# should only be called after the node successfully
+		# retrieved data.
+
+	def queryFileDeletion(self):
+		# this function should query the database
+		# to delete the relevant file.
+
+	def queryFileMove(self):
+		# this function should query the database to
+		# alter the path of a file.
