@@ -20,7 +20,7 @@ class Database:
 			print("[DB] Connection failed.")
 
 	def __repr__(self):
-		return """IP: %s PORT: %s DB: %s""" % (self.IP, self.PORT, self.DB)
+		return "IP: %s PORT: %s DB: %s" % (self.IP, self.PORT, self.DB)
 
 	def __del__(self):
 		try:
