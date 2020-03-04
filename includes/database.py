@@ -15,6 +15,8 @@ class Database:
 				host=self.IP,
 				port = self.PORT,
 				database=self.DB)
+
+			print("[DB] Connection to - %s was successfull." % repr(self) )
 		except:
 			kill(self)
 			print("[DB] Connection failed.")
@@ -24,7 +26,8 @@ class Database:
 
 	def __del__(self):
 		try:
-			CONN.close()
+			self.CONN.close()
+			print("[DB] DB connection halted.")
 		except:
 			pass
 
