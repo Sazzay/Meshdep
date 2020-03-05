@@ -18,8 +18,16 @@ class NodeThread(threading.Thread):
 	def __init__(self, client, address):
 		self.CLIENT = client
 		self.ADDRESS = address
+		threading.Thread.__init__(self)
 
-		# request machine id from client next
+	def run(self):
+		# send a packet back to the machine
+		# and ask it to submit it's /etc/machine-id
+		# 
+		# after this has been done, we need to
+		# find some way to link commands togheter
+		# from the http server
+		pass
 
 class NodeServer:
 	def __init__(self, host, port, peers):

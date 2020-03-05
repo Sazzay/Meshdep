@@ -15,6 +15,7 @@ while ACTIVE:
     try:
         time.sleep(0.1)
     except KeyboardInterrupt:
+        print("[INTERRUPT] KeyboardInterrupt detected, halting DB and Server.")
         del db
         del ns
         ACTIVE = False

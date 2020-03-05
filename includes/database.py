@@ -16,7 +16,7 @@ class Database:
 				port = self.PORT,
 				database=self.DB)
 
-			print("[DB] Connection to - %s was successfull." % repr(self) )
+			print("[DB] Connection to - %s was successful." % repr(self) )
 		except:
 			kill(self)
 			print("[DB] Connection failed.")
