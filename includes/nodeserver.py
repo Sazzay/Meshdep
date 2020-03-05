@@ -1,12 +1,18 @@
-import socket
+from includes import packets
 from _thread import *
+import socket
 import threading 
 import time
+import json
 
 class NodeHandler(threading.Thread):
 	def __init__(self, socket):
+		self.THREADS = []
 		self.SOCK = socket
 		threading.Thread.__init__(self)
+
+	def __repr__(self):
+		return self.THREADS
 
 	def run(self):
 		while True:
@@ -14,11 +20,27 @@ class NodeHandler(threading.Thread):
 			nt = NodeThread(client, addr)
 			nt.start()
 
+			# add the thread to a list of
+			# threads to be able to execute
+			# commands on the thread
+
+	def find_node(self):
+		# find the most suitable node
+		# by contacting each individual
+		# node through their threads
+		# in self.THREADS and requesting
+		# the amount of available storage
+		pass
+
 class NodeThread(threading.Thread):
 	def __init__(self, client, address):
+		self.SUB_THREADS = []
 		self.CLIENT = client
 		self.ADDRESS = address
+		self.MID = None
 		threading.Thread.__init__(self)
+
+		print("[SERVER] Received a new node from %s" % repr(self.ADDRESS))
 
 	def run(self):
 		# send a packet back to the machine
@@ -27,7 +49,21 @@ class NodeThread(threading.Thread):
 		# after this has been done, we need to
 		# find some way to link commands togheter
 		# from the http server
-		pass
+		while True:
+			recv = self.CLIENT.recv(64)
+
+			try:
+				rtype = packets.Packets(json.loads(recv.decode())[0])
+				msglen = json.loads(recv.decode())[1]
+
+				if (rtype == packets.Packets.INIT):
+					self.handshake(rtype, msglen)
+			except:
+				print("Test")
+
+	def handshake(self, rtype, msglen):
+		recv = self.CLIENT.recv(msglen)
+		print("[SERVER] Handshake resulted in MID: %s" % recv.decode())
 
 class NodeServer:
 	def __init__(self, host, port, peers):

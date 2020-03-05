@@ -2,6 +2,8 @@ import socket
 import os
 import platform
 import subprocess
+import psutil
+from includes import packets
 
 class NodeClient:
 	def __init__(self, ip, port):
@@ -9,12 +11,6 @@ class NodeClient:
 		self.IP = ip
 		self.PORT = int(port)
 		self.SOCK = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-		test = self.fetch_mid()
-		print(test)
-
-		self.add_file("Svantesson", "Min skit", "porr.mp4", b'10101')
-		self.rm_file("Svantesson", "Min skit", "porr.mp4")
 
 		try:
 			self.ACTIVE = True
@@ -24,8 +20,18 @@ class NodeClient:
 		except:
 			print("[NODE] Failed to establish a connection to %s:%s" % (self.IP, self.PORT))
 
+		self.handshake()
+
 	def __repr__(self):
 		return "%s:%s" % (self.IP, self.PORT)
+
+	def handshake(self):
+		mid = self.fetch_mid()
+		self.SOCK.send((packets.sendHeader(packets.Packets.INIT, len(mid)).encode()))
+		self.SOCK.send(mid.encode())
+
+	def fetch_avail_space(self):
+		return psutil.disk_usage('/').free
 
 	def fetch_mid(self):
 		if platform.system() == "Linux":

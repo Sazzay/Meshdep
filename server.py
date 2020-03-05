@@ -6,6 +6,7 @@ from includes import database
 from includes import nodeserver
 import time
 
+print("[SERVER] Starting the Database & NodeServer...")
 
 ACTIVE = True
 db = database.Database("192.168.1.240", "8159", "root", "lol123", "meshdep")
