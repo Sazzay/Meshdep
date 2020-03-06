@@ -14,27 +14,49 @@ class NodeHandler(threading.Thread):
 	def __repr__(self):
 		return self.THREADS
 
+	def cleanse_nodes(self):
+		threads = []
+
+		for i in range(len(self.THREADS)):
+			if self.THREADS[i].isAlive():
+				threads.append(self.THREADS[i])
+
+		self.THREADS = threads
+
 	def run(self):
 		while True:
 			client, addr = self.SOCK.accept()
 			nt = NodeThread(client, addr)
 			nt.start()
 
-			# add the thread to a list of
-			# threads to be able to execute
-			# commands on the thread
+			self.THREADS.append(nt)
+			self.find_node()
 
 	def find_node(self):
-		# find the most suitable node
-		# by contacting each individual
-		# node through their threads
-		# in self.THREADS and requesting
-		# the amount of available storage
-		pass
+		# always keep cleanse_nodes to purge dead threads
+		# at the top of the functions
+		time.sleep(0.5)
+		self.cleanse_nodes()
 
+		space = {}
+
+		for i in range(len(self.THREADS)):
+			self.THREADS[i].send_space_req()
+
+			while self.THREADS[i].SPACE == 0 or self.THREADS[i].MID == None:
+				time.sleep(0.1)
+
+			space[self.THREADS[i].MID] = self.THREADS[i].SPACE
+			self.THREADS[i].SPACE = 0
+
+		space = {k: v for k, v in sorted(space.items(), key=lambda item: item[1])}
+
+		print("[SERVER] Found the most suitable node as %s" % list(space.keys())[len(space)-1])
+
+		return list(space.keys())[len(space)-1]
+		
 class NodeThread(threading.Thread):
 	def __init__(self, client, address):
-		self.SUB_THREADS = []
 		self.CLIENT = client
 		self.ADDRESS = address
 		self.MID = None
@@ -42,21 +64,19 @@ class NodeThread(threading.Thread):
 		threading.Thread.__init__(self)
 
 	def run(self):
-		# send a packet back to the machine
-		# and ask it to submit it's /etc/machine-id
-		# 
-		# after this has been done, we need to
-		# find some way to link commands togheter
-		# from the http server
 		while True:
-			recv = self.CLIENT.recv(1024)
+			try:
+				recv = self.CLIENT.recv(1024)
+			except ConnectionResetError:
+				print("[SERVER] Connection to node %s lost." % repr(self.ADDRESS))
+				break
 
+				
 			try:
 				rtype = packets.Packets(json.loads(recv.decode())[0])
 
 				if (rtype == packets.Packets.HANDSHAKE):
 					self.recv_handshake(recv)
-					self.send_space_req()
 				if (rtype == packets.Packets.RESP_SPACE):
 					self.recv_space(recv)
 				# add the other types below

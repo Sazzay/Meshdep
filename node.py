@@ -21,11 +21,14 @@ nc = nodeclient.NodeClient("127.0.0.1", "6220")
 #print(test2)
 
 while True:
-    recv = nc.SOCK.recv(1024)
+    try:
+    	recv = nc.SOCK.recv(1024)
+    except ConnectionResetError:
+    	print("[NODE] The remote socket closed the connection, exiting...")
+    	break
     
     try:
     	rtype = packets.Packets(json.loads(recv.decode())[0])
-    	print(rtype)
 
     	if rtype == packets.Packets.REQ_SPACE:
     		nc.send_space_resp()
