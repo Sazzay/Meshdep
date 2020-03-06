@@ -20,15 +20,32 @@ class NodeClient:
 		except:
 			print("[NODE] Failed to establish a connection to %s:%s" % (self.IP, self.PORT))
 
-		self.handshake()
+		self.send_handshake()
 
 	def __repr__(self):
 		return "%s:%s" % (self.IP, self.PORT)
 
-	def handshake(self):
+	# send functions #
+	def send_handshake(self):
 		mid = self.fetch_mid()
-		self.SOCK.send((packets.sendHeader(packets.Packets.INIT, len(mid)).encode()))
-		self.SOCK.send(mid.encode())
+		self.SOCK.send((
+			packets.fetchSmallPacket(
+			packets.Packets.HANDSHAKE, 
+			mid).encode()
+			))
+
+	def send_space_resp(self):
+		space = self.fetch_avail_space()
+
+		self.SOCK.send((
+			packets.fetchSmallPacket(
+			packets.Packets.RESP_SPACE, 
+			space).encode()
+			))
+
+		print("[NODE] Received a space request, sending space response: %s" % space)
+
+	# recv functions #
 
 	def fetch_avail_space(self):
 		return psutil.disk_usage('/').free
@@ -46,14 +63,19 @@ class NodeClient:
 			except:
 				print("[NODE] Subprocess WMIC failed to fetch /etc/machine-id UUID equilivent.")
 
-	def add_file(self, user, path, file_name, data):
+	# write_mode = "wb" write bytes "ab" append bytes
+	# might want to add a check here to add a number if
+	# the filename exists, to prevent data from being
+	# overwritten
+	def add_file(self, user, path, file_name, data, write_mode):
 		if os.path.exists('Data' + '/' + user + '/' + path):
-			f = open('Data' + '/' + user + '/' + path + '/' + file_name, "wb")
+			f = open('Data' + '/' + user + '/' + path + '/' + file_name, write_mode)
 			f.write(data)
 			f.close()
 		else:
 			self.add_folder(user, path)
-			self.add_file(user, path, file_name, data)
+			self.add_file(user, path, file_name, data, write_mode)
+
 
 	def rm_file(self, user, path, file_name):
 		if os.path.isfile('Data' + '/' + user + '/' + path + '/' + file_name):

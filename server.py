@@ -1,7 +1,6 @@
 # the server class,
 # will run the server
 
-import asyncore
 from includes import database
 from includes import nodeserver
 import time

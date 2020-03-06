@@ -38,9 +38,8 @@ class NodeThread(threading.Thread):
 		self.CLIENT = client
 		self.ADDRESS = address
 		self.MID = None
+		self.SPACE = 0
 		threading.Thread.__init__(self)
-
-		print("[SERVER] Received a new node from %s" % repr(self.ADDRESS))
 
 	def run(self):
 		# send a packet back to the machine
@@ -50,20 +49,40 @@ class NodeThread(threading.Thread):
 		# find some way to link commands togheter
 		# from the http server
 		while True:
-			recv = self.CLIENT.recv(64)
+			recv = self.CLIENT.recv(1024)
 
 			try:
 				rtype = packets.Packets(json.loads(recv.decode())[0])
-				msglen = json.loads(recv.decode())[1]
 
-				if (rtype == packets.Packets.INIT):
-					self.handshake(rtype, msglen)
-			except:
-				print("Test")
+				if (rtype == packets.Packets.HANDSHAKE):
+					self.recv_handshake(recv)
+					self.send_space_req()
+				if (rtype == packets.Packets.RESP_SPACE):
+					self.recv_space(recv)
+				# add the other types below
+			except Exception as ex:
+				print("[SERVER] Exception raised in thread: %s" % ex.args[0])
 
-	def handshake(self, rtype, msglen):
-		recv = self.CLIENT.recv(msglen)
-		print("[SERVER] Handshake resulted in MID: %s" % recv.decode())
+	def recv_handshake(self, data):
+		self.MID = json.loads(data.decode())[1]
+		print("[SERVER] Got a new node, handshake with %s resulted in MID: %s" % (repr(self.ADDRESS), self.MID))
+
+	def recv_space(self, data):
+		self.SPACE = json.loads(data.decode())[1]
+		print("[SERVER] Received a response with available node space: %s" % self.SPACE)
+
+	def recv_file(self, data):
+		# on file retrieval, relay
+		# to appropriate channel
+		# (http server)
+		pass
+
+	def send_space_req(self):
+		self.CLIENT.send((packets.fetchReqPacket(packets.Packets.REQ_SPACE)).encode())
+
+	def send_file(self, data):
+		# send a file to the node
+		pass
 
 class NodeServer:
 	def __init__(self, host, port, peers):
