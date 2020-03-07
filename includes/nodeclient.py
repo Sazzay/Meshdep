@@ -7,6 +7,7 @@ from includes import packets
 
 class NodeClient:
 	def __init__(self, ip, port):
+		self.TRANSFERS = []
 		self.ACTIVE = False
 		self.IP = ip
 		self.PORT = int(port)
@@ -45,7 +46,43 @@ class NodeClient:
 
 		print("[NODE] Received a space request, sending space response: %s" % space)
 
+	def send_transfer_resp(self, port):
+		# fetch an availble port based on
+		# active socket threads in 
+
+		self.SOCK.send((
+			packets.fetchSmallPacket(
+			packets.Packets.RESP_TRANSFER, 
+			port).encode()
+			))
 	# recv functions #
+
+	# cleanse functions #
+	def cleanse_transfers(self):
+		transfers = []
+
+		for i in range(len(self.TRANSFERS)):
+			if self.TRANSFERS[i].isAlive():
+				transfers.append(self.TRANSFERS[i])
+
+		self.TRANSFERS = transfers
+
+	# fetch functions #
+	def fetch_avail_port(self):
+		self.cleanse_transfers()
+		port = 7430
+
+		if len(self.TRANSFERS) == 0:
+			return 7430
+
+		
+		for i in range(len(self.TRANSFERS)):
+			if self.TRANSFERS[i].isAlive:
+				port += 1
+			else:
+				break
+
+		return port
 
 	def fetch_avail_space(self):
 		return psutil.disk_usage('/').free

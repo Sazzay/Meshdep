@@ -30,12 +30,16 @@ class NodeHandler(threading.Thread):
 			nt.start()
 
 			self.THREADS.append(nt)
-			self.find_node()
+			nt.send_transfer_req("test", "test", "serverrobban", "50000", "False")
+			nt.send_transfer_req("test0", "test0", "serverrobban", "500000", "False")
+			nt.send_transfer_req("test", "test", "serverrobban", "50000", "False")
+			nt.send_transfer_req("test0", "test0", "serverrobban", "500000", "False")
+			nt.send_transfer_req("test", "test", "serverrobban", "50000", "False")
+			nt.send_transfer_req("test0", "test0", "serverrobban", "500000", "False")
 
 	def find_node(self):
 		# always keep cleanse_nodes to purge dead threads
 		# at the top of the functions
-		time.sleep(0.5)
 		self.cleanse_nodes()
 
 		space = {}
@@ -53,14 +57,20 @@ class NodeHandler(threading.Thread):
 
 		print("[SERVER] Found the most suitable node as %s" % list(space.keys())[len(space)-1])
 
-		return list(space.keys())[len(space)-1]
+		for i in range(len(self.THREADS)):
+			if list(space.keys())[len(space)-1] == self.THREADS[i].MID:
+				return self.THREADS[i]
+
+		return None
 		
 class NodeThread(threading.Thread):
 	def __init__(self, client, address):
 		self.CLIENT = client
 		self.ADDRESS = address
+		self.TRANSFERS = []
 		self.MID = None
 		self.SPACE = 0
+		self.TEST = 0
 		threading.Thread.__init__(self)
 
 	def run(self):
@@ -71,7 +81,6 @@ class NodeThread(threading.Thread):
 				print("[SERVER] Connection to node %s lost." % repr(self.ADDRESS))
 				break
 
-				
 			try:
 				rtype = packets.Packets(json.loads(recv.decode())[0])
 
@@ -79,9 +88,17 @@ class NodeThread(threading.Thread):
 					self.recv_handshake(recv)
 				if (rtype == packets.Packets.RESP_SPACE):
 					self.recv_space(recv)
+				if (rtype == packets.Packets.RESP_TRANSFER):
+					self.recv_transfer_resp(recv)
 				# add the other types below
 			except Exception as ex:
 				print("[SERVER] Exception raised in thread: %s" % ex.args[0])
+
+	def fetch_transfer_port(self):
+		if len(self.TRANSFERS) == 0:
+			return None
+		else:
+			return self.TRANSFERS.pop(0)
 
 	def recv_handshake(self, data):
 		self.MID = json.loads(data.decode())[1]
@@ -97,11 +114,24 @@ class NodeThread(threading.Thread):
 		# (http server)
 		pass
 
+	def recv_transfer_resp(self, data):
+		self.TRANSFERS.append(json.loads(data.decode())[1])
+		print("[SERVER] Received a response with an availble transfer node: %s" % json.loads(data.decode())[1])
+
 	def send_space_req(self):
+		time.sleep(0.05) # hacky way to avoid SOCK_STREAM polluting the recv of the node, might want to alter in future
 		self.CLIENT.send((packets.fetchReqPacket(packets.Packets.REQ_SPACE)).encode())
 
-	def send_file(self, data):
-		# send a file to the node
+	def send_transfer_req(self, fileName, path, userName, msgLen, overwrite):
+		time.sleep(0.05) # hacky way to avoid SOCK_STREAM polluting the recv of the node, might want to alter in future
+		data = [fileName, path, userName, msgLen, overwrite]
+		self.CLIENT.send((packets.fetchSmallPacket(packets.Packets.REQ_TRANSFER, data)).encode())
+
+	def send_file(self, packet):
+		# open a new socket connection to the node
+		# and start transfering to that socket
+		# instead of the main communication
+		# socket.
 		pass
 
 class NodeServer:
