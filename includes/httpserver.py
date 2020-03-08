@@ -1,4 +1,5 @@
 # https://docs.python.org/3/library/http.server.html
+# https://stackoverflow.com/questions/31371166/reading-json-from-simplehttpserver-post-data
 
 class RequestHandler(SimpleHTTPRequestHandler):
 	def do_HEAD(self):
@@ -8,9 +9,4 @@ class RequestHandler(SimpleHTTPRequestHandler):
 		pass
 
 	def do_POST(self):
-		# login
-
-		# register
-
-		# file transfer up/down
 		pass
