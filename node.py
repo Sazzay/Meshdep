@@ -12,7 +12,7 @@ nc = nodeclient.NodeClient(HOST, PORT)
 
 while True:
 	try:
-		recv = nc.SOCK.recv(256)
+		recv = nc.SOCK.recv(1024)
 	except ConnectionResetError:
 		print("[NODE] The remote socket closed the connection.")
 		break
@@ -25,12 +25,13 @@ while True:
 		if rtype == packets.Packets.REQ_TRANSFER:
 			pckt = json.loads(recv.decode())[1]
 			port = nc.fetch_avail_port()
+			tid = pckt[5]
 
 			thread = nodefilereceiver.NodeFileReceiver(HOST, port, pckt[0], pckt[1], pckt[2], pckt[3], pckt[4])
 			thread.start()
 
 			nc.TRANSFERS.append(thread)
-			nc.send_transfer_resp(port)
+			nc.send_transfer_resp(tid, port)
 	except Exception as ex:
 		print("[NODE] Exception raised while receiving a packet: %s" % ex.args[0])
 		break

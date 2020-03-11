@@ -4,7 +4,7 @@ import socket
 import threading 
 import time
 import json
-
+# NodeServer -> NodeHandler -> NodeThread
 class NodeHandler(threading.Thread):
 	def __init__(self, socket):
 		self.THREADS = []
@@ -13,6 +13,10 @@ class NodeHandler(threading.Thread):
 
 	def __repr__(self):
 		return self.THREADS
+
+	def close_all_threads(self):
+		for i in range(len(self.THREADS)):
+			self.THREADS[i].CLIENT.close()
 
 	def cleanse_nodes(self):
 		threads = []
@@ -25,22 +29,28 @@ class NodeHandler(threading.Thread):
 
 	def run(self):
 		while True:
-			client, addr = self.SOCK.accept()
-			nt = NodeThread(client, addr)
-			nt.start()
+			try:
+				client, addr = self.SOCK.accept()
+				nt = NodeThread(client, addr)
+				nt.start()
+			except:
+				self.close_all_threads()
+				break
 
 			self.THREADS.append(nt)
-			nt.send_transfer_req("test", "test", "serverrobban", "50000", "False")
-			nt.send_transfer_req("test0", "test0", "serverrobban", "500000", "False")
-			nt.send_transfer_req("test", "test", "serverrobban", "50000", "False")
-			nt.send_transfer_req("test0", "test0", "serverrobban", "500000", "False")
-			nt.send_transfer_req("test", "test", "serverrobban", "50000", "False")
-			nt.send_transfer_req("test0", "test0", "serverrobban", "500000", "False")
 
-	def find_node(self):
+	def find_node(self, attempts):
 		# always keep cleanse_nodes to purge dead threads
 		# at the top of the functions
 		self.cleanse_nodes()
+
+		if len(self.THREADS) == 0:
+			while attempts > 0:
+				if len(self.THREADS) > 0:
+					break
+
+				attempts -= 1
+				time.sleep(0.5)
 
 		space = {}
 
@@ -65,12 +75,14 @@ class NodeHandler(threading.Thread):
 		
 class NodeThread(threading.Thread):
 	def __init__(self, client, address):
+		self.SPACE_BUSY = False
+		self.TRANSFER_BUSY = False
 		self.CLIENT = client
 		self.ADDRESS = address
 		self.TRANSFERS = []
 		self.MID = None
+		self.TID = 0
 		self.SPACE = 0
-		self.TEST = 0
 		threading.Thread.__init__(self)
 
 	def run(self):
@@ -79,6 +91,8 @@ class NodeThread(threading.Thread):
 				recv = self.CLIENT.recv(1024)
 			except ConnectionResetError:
 				print("[SERVER] Connection to node %s lost." % repr(self.ADDRESS))
+				break
+			except ConnectionAbortedError:
 				break
 
 			try:
@@ -94,45 +108,57 @@ class NodeThread(threading.Thread):
 			except Exception as ex:
 				print("[SERVER] Exception raised in thread: %s" % ex.args[0])
 
-	def fetch_transfer_port(self):
-		if len(self.TRANSFERS) == 0:
-			return None
-		else:
-			return self.TRANSFERS.pop(0)
+	def generate_tid(self):
+		self.TID += 1
+
+		if (self.TID >= 2000):
+			self.TID = 0
+
+		return self.TID
+
+	def fetch_transfer(self, fileName, path, userName, msgLen, overwrite):
+		while self.TRANSFER_BUSY:
+			pass
+
+		self.TRANSFER_BUSY = True
+		tid = self.generate_tid()
+		data = [fileName, path, userName, msgLen, overwrite, tid]
+		self.CLIENT.send((packets.fetchSmallPacket(packets.Packets.REQ_TRANSFER, data)).encode())
+
+		attempts = 0
+
+		while attempts < 60:
+			for i in range(len(self.TRANSFERS)):
+				if str(tid) in self.TRANSFERS[i]:
+					ret = self.TRANSFERS[i].get(str(tid))
+					del self.TRANSFERS[i]
+					return ret
+
+			attempts += 1
+			time.sleep(0.5)
+
+		print("[SERVER] Could not fetch a transfer subnode from the node.")
 
 	def recv_handshake(self, data):
 		self.MID = json.loads(data.decode())[1]
 		print("[SERVER] Got a new node, handshake with %s resulted in MID: %s" % (repr(self.ADDRESS), self.MID))
 
 	def recv_space(self, data):
+		self.SPACE_BUSY = False
 		self.SPACE = json.loads(data.decode())[1]
 		print("[SERVER] Received a response with available node space: %s" % self.SPACE)
 
-	def recv_file(self, data):
-		# on file retrieval, relay
-		# to appropriate channel
-		# (http server)
-		pass
-
 	def recv_transfer_resp(self, data):
+		self.TRANSFER_BUSY = False
 		self.TRANSFERS.append(json.loads(data.decode())[1])
 		print("[SERVER] Received a response with an availble transfer node: %s" % json.loads(data.decode())[1])
 
 	def send_space_req(self):
-		time.sleep(0.05) # hacky way to avoid SOCK_STREAM polluting the recv of the node, might want to alter in future
+		while self.SPACE_BUSY:
+			pass
+
+		self.SPACE_BUSY = True
 		self.CLIENT.send((packets.fetchReqPacket(packets.Packets.REQ_SPACE)).encode())
-
-	def send_transfer_req(self, fileName, path, userName, msgLen, overwrite):
-		time.sleep(0.05) # hacky way to avoid SOCK_STREAM polluting the recv of the node, might want to alter in future
-		data = [fileName, path, userName, msgLen, overwrite]
-		self.CLIENT.send((packets.fetchSmallPacket(packets.Packets.REQ_TRANSFER, data)).encode())
-
-	def send_file(self, packet):
-		# open a new socket connection to the node
-		# and start transfering to that socket
-		# instead of the main communication
-		# socket.
-		pass
 
 class NodeServer:
 	def __init__(self, host, port, peers):
@@ -158,5 +184,6 @@ class NodeServer:
 		return "NodeServer: %s:%s" % (self.HOST, self.PORT)
 
 	def __del__(self):
+		self.SOCK.close()
 		print("[SERVER] %s shutting down" % repr(self))
 

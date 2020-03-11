@@ -29,7 +29,7 @@ class Database:
 			self.CONN.close()
 			print("[DB] DB connection halted.")
 		except:
-			pass
+			print("[DB] DB connection halting process failed.")
 
 	def queryFileAddition(self):
 		# this function should query the database
@@ -47,4 +47,7 @@ class Database:
 	def queryFileMove(self):
 		# this function should query the database to
 		# alter the path of a file.
+		pass
+
+	def queryUserAdd(self, userName, password):
 		pass

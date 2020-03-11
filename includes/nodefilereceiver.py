@@ -1,3 +1,4 @@
+from includes import fileops
 from includes import packets
 from _thread import *
 import socket
@@ -16,7 +17,6 @@ class NodeFileReceiver(threading.Thread):
 		self.HOST = host
 		self.OVERWRITE = overwrite
 		self.PORT = int(port)
-		self.MFT = 1
 		threading.Thread.__init__(self)
 
 		try:
@@ -34,6 +34,7 @@ class NodeFileReceiver(threading.Thread):
 		return "NodeFileReceiver: %s:%s" % (self.HOST, self.PORT)
 
 	def __del__(self):
+		self.SOCK.close()
 		print("[NODE] %s shutting down" % repr(self))
 
 	def run(self):
@@ -43,12 +44,17 @@ class NodeFileReceiver(threading.Thread):
 		except:
 			print("[NODE] Failed to receive a connection on file transmitter.")
 		
+		fa = fileops.FileAdder(self.USER, self.FILENAME, self.PATH)
 		tbytes = 0
 
 		while tbytes < self.LENGTH:
 			try:
 				recv = self.CLIENT.recv(1024)
+				fa.write(recv)
 				tbytes += 1024
 			except ConnectionResetError:
 				print("[NODE] NodeFileReceiver socket closed.")
 				break
+
+		fa.close()
+		print("Successfully received file %s" % repr(fa))

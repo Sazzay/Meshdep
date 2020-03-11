@@ -46,14 +46,17 @@ class NodeClient:
 
 		print("[NODE] Received a space request, sending space response: %s" % space)
 
-	def send_transfer_resp(self, port):
+	def send_transfer_resp(self, tid, port):
 		# fetch an availble port based on
 		# active socket threads in 
+
+		data = {}
+		data[tid] = port
 
 		self.SOCK.send((
 			packets.fetchSmallPacket(
 			packets.Packets.RESP_TRANSFER, 
-			port).encode()
+			data).encode()
 			))
 	# recv functions #
 
@@ -99,35 +102,3 @@ class NodeClient:
 				return subprocess.check_output('wmic csproduct get uuid').decode().split('\n')[1].strip()
 			except:
 				print("[NODE] Subprocess WMIC failed to fetch /etc/machine-id UUID equilivent.")
-
-	# write_mode = "wb" write bytes "ab" append bytes
-	# might want to add a check here to add a number if
-	# the filename exists, to prevent data from being
-	# overwritten
-	def add_file(self, user, path, file_name, data, write_mode):
-		if os.path.exists('Data' + '/' + user + '/' + path):
-			f = open('Data' + '/' + user + '/' + path + '/' + file_name, write_mode)
-			f.write(data)
-			f.close()
-		else:
-			self.add_folder(user, path)
-			self.add_file(user, path, file_name, data, write_mode)
-
-
-	def rm_file(self, user, path, file_name):
-		if os.path.isfile('Data' + '/' + user + '/' + path + '/' + file_name):
-			os.remove('Data' + '/' + user + '/' + path + '/' + file_name)
-		else:
-			print("[NODE] The path specified is not a file, can not complete.")
-
-	def add_folder(self, user, path):
-		if not os.path.exists('Data' + '/' + user + '/' + path):
-			os.makedirs('Data' + '/' + user + '/' + path)
-		else:
-			print("[NODE] Tried to add a folder that already exist.")
-
-	def rm_folder(self, user, path):
-		if os.path.exists('Data' + '/' + user + '/' + path):
-			os.removedirs('Data' + '/' + user + '/' + path)
-		else:
-			print("[NODE] Tried to remove a folder that does not exist.")

@@ -17,7 +17,7 @@ def fetchReqPacket(packetType):
 
 def fetchSmallPacket(packetType, data):
 	if (isinstance(packetType, Packets)):
-		if (sys.getsizeof(data) + sys.getsizeof(packetType)) > 256:
+		if (sys.getsizeof(data) + sys.getsizeof(packetType)) > 1024:
 			print("[PACKETS] The amount of data has exceeded the maximum of 256 bytes")
 		else:
 			return json.dumps([packetType, data])
