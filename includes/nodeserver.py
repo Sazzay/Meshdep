@@ -72,6 +72,11 @@ class NodeHandler(threading.Thread):
 				return self.THREADS[i]
 
 		return None
+
+	def find_node_by_mid(self, mid):
+		# should return the node if the mid's
+		# match in the loop
+		pass
 		
 class NodeThread(threading.Thread):
 	def __init__(self, client, address):
@@ -162,6 +167,9 @@ class NodeThread(threading.Thread):
 
 		self.SPACE_BUSY = True
 		self.CLIENT.send((packets.fetchReqPacket(packets.Packets.REQ_SPACE)).encode())
+
+	def send_del_req(self, data):
+		pass
 
 class NodeServer:
 	def __init__(self, host, port, peers):
