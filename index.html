@@ -8,11 +8,11 @@ Meshdep
 </head>
 <body>
 
-<img src="C:\Users\Johan\Desktop\Meshdep.png" alt="Simply Easy Learning"><br><br>
+<img src="https://camo.githubusercontent.com/77cf010ea4faa4b0974b7690a4100bb383d66d3d/68747470733a2f2f692e696d6775722e636f6d2f756634486d45322e706e67--" alt="Meshdep Logo"><br><br>
 
 <div id="reg">
 <h2>Register</h2>
-  <form name="register">
+  <form name="register" method="POST">
     Username: <input type="text"  id="regUserid"/><br>
     Password: <input type="password" id="regPswrd"/><br>
     <input type="button" id="regButton" value="Register"/>              <!--onclick="check(this.form)"-->
@@ -35,7 +35,7 @@ Password: <input type="password" id="pswrd"/><br>
    var httpRequest;
    document.getElementById("regButton").addEventListener('click', makeRequest);
    
-   //var regUsr = document.getElementById("regUserid");
+   var regUsr = document.getElementById("regUserid");
    
    let formDataReg = new FormData(document.forms.register); // creates an FormData object, optionally fill from <form>, https://javascript.info/xmlhttprequest
    //formData.append(name, value); // appends a field
@@ -49,7 +49,7 @@ Password: <input type="password" id="pswrd"/><br>
        return false;
      }
      httpRequest.onreadystatechange = handleResponse;
-     httpRequest.open('POST', '/serv.py', true);
+     httpRequest.open('POST', '/html/', true);
      httpRequest.send(formDataReg);
    }
    }();
