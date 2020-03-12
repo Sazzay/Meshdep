@@ -1,5 +1,5 @@
 from includes import nodeclient
-from includes import nodefilereceiver
+from includes import nodefilehandler
 from includes import packets
 import json
 import time
@@ -25,9 +25,9 @@ while True:
 		if rtype == packets.Packets.REQ_TRANSFER:
 			pckt = json.loads(recv.decode())[1]
 			port = nc.fetch_avail_port()
-			tid = pckt[5]
+			tid = pckt[6]
 
-			thread = nodefilereceiver.NodeFileReceiver(HOST, port, pckt[0], pckt[1], pckt[2], pckt[3], pckt[4])
+			thread = nodefilereceiver.NodeFileHandler(pckt[0], HOST, port, pckt[1], pckt[2], pckt[3], pckt[4], pckt[5])
 			thread.start()
 
 			nc.TRANSFERS.append(thread)

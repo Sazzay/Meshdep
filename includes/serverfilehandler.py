@@ -2,8 +2,9 @@ from _thread import *
 import socket
 import threading 
 
-class FileSender(threading.Thread):
-	def __init__(self, host, port, fileName, path, userName, msgLen, overwrite):
+class ServerFileHandler(threading.Thread):
+	def __init__(self, mode, host, port, fileName, path, userName, msgLen, overwrite):
+		self.MODE = None
 		self.DATA = []
 		self.SOCK = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.FILENAME = fileName
@@ -32,7 +33,40 @@ class FileSender(threading.Thread):
 	def enqueue(self, data):
 		self.DATA.append(data)
 
+	def dequeue(self):
+		return self.DATA.pop(0)
+
 	def run(self):
+		if self.MODE = "SEND":
+			self.exec_send()
+			return
+
+		if self.MODE = "RECV":
+			self.exec_receive()
+			return
+
+		print("[SERVER] Invalid mode specified to ServerFileHandler. Returning.")
+
+	def exec_receive(self):
+		tbytes = 0
+
+		try:
+			while tbytes < self.LENGTH:
+				while len(self.DATA) > 0:
+					pass
+
+				recv = self.SOCK.recv(32768)
+				self.enqueue(recv)
+				tbytes += 32768
+		except ConnectionResetError:
+			print("[NODE] NodeFileReceiver socket closed.")
+			break
+
+		del self
+
+		print("[SERVER] Successfully received file %s from %s" % (self.FILENAME, self.HOST))
+
+	def exec_send(self):
 		percentage = round(self.LENGTH / 4, 1)
 		tcount = 0
 		tbytes = 0
@@ -47,11 +81,13 @@ class FileSender(threading.Thread):
 					pass
 
 				self.SOCK.send(self.DATA.pop(0))
-				tcount += 1024
-				tbytes += 1024
+				tcount += 32768
+				tbytes += 32768
 			except ConnectionResetError:
 				print("[SERVER] File transfer operation to transfer node %s failed, remote host closed connection." % repr(self))
 				break
+
+		del self
 
 		print("[SERVER] Successfully sent file %s to %s" % (self.FILENAME, repr(self)))
 

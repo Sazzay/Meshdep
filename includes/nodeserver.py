@@ -116,13 +116,16 @@ class NodeThread(threading.Thread):
 
 		return self.TID
 
-	def fetch_transfer(self, fileName, path, userName, msgLen, overwrite):
+	def fetch_ip(self):
+		return self.ADDRESS[0]
+
+	def fetch_transfer(self, mode, fileName, path, userName, msgLen, overwrite):
 		while self.TRANSFER_BUSY:
 			pass
 
 		self.TRANSFER_BUSY = True
 		tid = self.generate_tid()
-		data = [fileName, path, userName, msgLen, overwrite, tid]
+		data = [mode, fileName, path, userName, msgLen, overwrite, tid]
 		self.CLIENT.send((packets.fetchSmallPacket(packets.Packets.REQ_TRANSFER, data)).encode())
 
 		attempts = 0

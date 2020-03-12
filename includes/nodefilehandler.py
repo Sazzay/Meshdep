@@ -6,8 +6,9 @@ import threading
 import time
 import json
 
-class NodeFileReceiver(threading.Thread):
-	def __init__(self, host, port, fileName, path, userName, msgLen, overwrite):
+class NodeFileHandler(threading.Thread):
+	def __init__(self, mode, host, port, fileName, path, userName, msgLen, overwrite):
+		self.MODE = None
 		self.CLIENT = None
 		self.ADDR = None
 		self.FILENAME = fileName
@@ -43,18 +44,46 @@ class NodeFileReceiver(threading.Thread):
 			print("[NODE] Received a file transmitter from %s" % repr(self.ADDR))
 		except:
 			print("[NODE] Failed to receive a connection on file transmitter.")
+			return
+
+		if self.CLIENT == None or self.ADDR == None:
+			print("[NODE] Socket connection does not exist...")
+			return
 		
+		if self.MODE = "SEND":
+			self.exec_send()
+			return
+		if self.MODE = "RECV":
+			self.exec_receive()
+			return
+
+		print("[NODE] Invalid mode was specified in NodeFileHandler. Returning...")
+
+	def exec_receive(self):
 		fa = fileops.FileAdder(self.USER, self.FILENAME, self.PATH)
 		tbytes = 0
 
-		while tbytes < self.LENGTH:
-			try:
-				recv = self.CLIENT.recv(1024)
+		try:
+			while tbytes < self.LENGTH:
+				recv = self.CLIENT.recv(32768)
 				fa.write(recv)
-				tbytes += 1024
-			except ConnectionResetError:
-				print("[NODE] NodeFileReceiver socket closed.")
-				break
+				tbytes += 32768
+		except ConnectionResetError:
+			print("[NODE] NodeFileReceiver socket closed.")
+			break
 
 		fa.close()
 		print("Successfully received file %s" % repr(fa))
+
+	def exec_send(self):
+		try:
+			f = open("Data/%s/%s/%s" % (self.USER, self.PATH, self.FILENAME), "rb")
+
+			data = f.read(32768)
+
+			while data:
+				self.CLIENT.send(data)
+				data = f.read(32768)
+		except Exception as ex:
+			print("[NODE] Could not complete transfer, exception: %s" % ex)
+			return
