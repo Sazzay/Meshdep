@@ -1,5 +1,4 @@
 from datetime import datetime
-import logging
 
 def log(prefix, string, boolean):
         f = open(prefix + "_log.txt", "a")
