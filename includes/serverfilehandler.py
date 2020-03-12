@@ -4,7 +4,7 @@ import threading
 
 class ServerFileHandler(threading.Thread):
 	def __init__(self, mode, host, port, fileName, path, userName, msgLen, overwrite):
-		self.MODE = None
+		self.MODE = mode
 		self.DATA = []
 		self.SOCK = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.FILENAME = fileName
@@ -37,11 +37,11 @@ class ServerFileHandler(threading.Thread):
 		return self.DATA.pop(0)
 
 	def run(self):
-		if self.MODE = "SEND":
+		if self.MODE == "SEND":
 			self.exec_send()
 			return
 
-		if self.MODE = "RECV":
+		if self.MODE == "RECV":
 			self.exec_receive()
 			return
 
@@ -58,21 +58,20 @@ class ServerFileHandler(threading.Thread):
 				recv = self.SOCK.recv(32768)
 				self.enqueue(recv)
 				tbytes += 32768
+
+			print("[SERVER] Successfully received file %s from %s" % (self.FILENAME, self.HOST))
+			del self
 		except ConnectionResetError:
 			print("[NODE] NodeFileReceiver socket closed.")
-			break
-
-		del self
-
-		print("[SERVER] Successfully received file %s from %s" % (self.FILENAME, self.HOST))
+			del self
 
 	def exec_send(self):
 		percentage = round(self.LENGTH / 4, 1)
 		tcount = 0
 		tbytes = 0
 
-		while tbytes < self.LENGTH:
-			try:
+		try:
+			while tbytes < self.LENGTH:
 				if (tcount >= percentage):
 					tcount = 0
 					print("[SERVER] File transfer progress of %s for user %s to %s is %s out of %s" % (self.FILENAME, self.USER, repr(self), tbytes, self.LENGTH))
@@ -83,11 +82,10 @@ class ServerFileHandler(threading.Thread):
 				self.SOCK.send(self.DATA.pop(0))
 				tcount += 32768
 				tbytes += 32768
-			except ConnectionResetError:
-				print("[SERVER] File transfer operation to transfer node %s failed, remote host closed connection." % repr(self))
-				break
 
-		del self
-
-		print("[SERVER] Successfully sent file %s to %s" % (self.FILENAME, repr(self)))
+			print("[SERVER] Successfully sent file %s to %s" % (self.FILENAME, repr(self)))
+			del self
+		except ConnectionResetError:
+			print("[SERVER] File transfer operation to transfer node %s failed, remote host closed connection." % repr(self))
+			del self
 
