@@ -8,7 +8,7 @@ import json
 
 class NodeFileHandler(threading.Thread):
 	def __init__(self, mode, host, port, fileName, path, userName, msgLen, overwrite):
-		self.MODE = None
+		self.MODE = mode
 		self.CLIENT = None
 		self.ADDR = None
 		self.FILENAME = fileName
@@ -50,10 +50,10 @@ class NodeFileHandler(threading.Thread):
 			print("[NODE] Socket connection does not exist...")
 			return
 		
-		if self.MODE = "SEND":
+		if self.MODE == "SEND":
 			self.exec_send()
 			return
-		if self.MODE = "RECV":
+		if self.MODE == "RECV":
 			self.exec_receive()
 			return
 
@@ -68,12 +68,11 @@ class NodeFileHandler(threading.Thread):
 				recv = self.CLIENT.recv(32768)
 				fa.write(recv)
 				tbytes += 32768
+
+			fa.close()
+			print("Successfully received file %s" % repr(fa))
 		except ConnectionResetError:
 			print("[NODE] NodeFileReceiver socket closed.")
-			break
-
-		fa.close()
-		print("Successfully received file %s" % repr(fa))
 
 	def exec_send(self):
 		try:

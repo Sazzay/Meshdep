@@ -24,10 +24,10 @@ with open("2020-02-13-raspbian-buster-full.zip", "rb") as f:
 	overwrite = "True"
 
 	node = ns.NHT.find_node(60)
-	node_ip = node.fetch_address()
+	node_ip = node.fetch_ip()
 	node_port = node.fetch_transfer("RECV", filename, folder, user, size, overwrite)
 
-	fs = serverfilesender.ServerFileHandler("SEND", node_ip, node_port, filename, folder, user, size, overwrite)
+	fs = serverfilehandler.ServerFileHandler("SEND", node_ip, node_port, filename, folder, user, size, overwrite)
 	fs.start()
 
 	data = f.read(32768)

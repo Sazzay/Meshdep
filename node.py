@@ -27,7 +27,7 @@ while True:
 			port = nc.fetch_avail_port()
 			tid = pckt[6]
 
-			thread = nodefilereceiver.NodeFileHandler(pckt[0], HOST, port, pckt[1], pckt[2], pckt[3], pckt[4], pckt[5])
+			thread = nodefilehandler.NodeFileHandler(pckt[0], HOST, port, pckt[1], pckt[2], pckt[3], pckt[4], pckt[5])
 			thread.start()
 
 			nc.TRANSFERS.append(thread)
