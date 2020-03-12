@@ -18,8 +18,8 @@ class Database:
 
 			print("[DB] Connection to - %s was successful." % repr(self) )
 		except:
-			kill(self)
 			print("[DB] Connection failed.")
+			kill(self)
 
 	def __repr__(self):
 		return "IP: %s PORT: %s DB: %s" % (self.IP, self.PORT, self.DB)
@@ -50,4 +50,10 @@ class Database:
 		pass
 
 	def queryUserAdd(self, userName, password):
-		pass
+		cursor = self.CONN.cursor()
+
+		query = ("INSERT INTO Users "
+			"(UserName, Password)"
+			"VALUES (%(UserName)s, %(Password)s)")
+
+		query_fields = (userName, password)
