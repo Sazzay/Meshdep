@@ -16,7 +16,3 @@ def get_info(filename, key):
         return "Configuration file, config.txt, has been created. Change the default values to accurate values. "
     finally:
         file.close()
-
-
-test = get_info('config.txt', 'DB_IP = ')
-print(test)
