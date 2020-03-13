@@ -184,12 +184,14 @@ class NodeThread(threading.Thread):
 		self.SPACE_BUSY = True
 		self.CLIENT.send((packets.fetchReqPacket(packets.Packets.REQ_SPACE)).encode())
 
-	def send_del_req(self, data):
+	def send_del_req(self, userName, path, fileName):
 		while self.SPACE_BUSY or self.TRANSFER_BUSY or self.DEL_BUSY:
 			pass
 
 		self.DEL_BUSY = True
-                self.CLIENT.send((packets.fetchSmallPacket(packets.Packets.REQ_DEL, data)).encode())
+
+		data = [userName, path, fileName]
+		self.CLIENT.send((packets.fetchSmallPacket(packets.Packets.REQ_DEL, data)).encode())
 
 class NodeServer:
 	def __init__(self, host, port, peers):
