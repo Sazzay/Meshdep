@@ -12,7 +12,7 @@ import os
 print("[SERVER] Starting the Database & NodeServer...")
 
 ACTIVE = True
-db = database.Database("81.170.171.18", "8159", "rosa12", "kq62qzde", "meshdep")
+db = database.Database("192.168.1.240", "8159", "root", "lol123", "meshdep")
 ns = nodeserver.NodeServer("127.0.0.1", "6220", 3)
 #hs = httpserver.RequestHandler(db)
 
