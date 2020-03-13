@@ -1,4 +1,6 @@
-def get_info(filename, key):
+from datetime import datetime
+
+def get_config_val(filename, key):
     try:
         
         file = open(filename)
@@ -16,3 +18,16 @@ def get_info(filename, key):
         return "Configuration file, config.txt, has been created. Change the default values to accurate values. "
     finally:
         file.close()
+        
+   from datetime import datetime
+
+def log(prefix, string, boolean):
+        f = open(prefix + "_log.txt", "a")
+
+        if boolean == True:
+            f.write(string + " -- " + str(datetime.now()) + "\n")
+            print(string)
+        else:
+            pass
+        f.close()
+
