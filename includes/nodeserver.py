@@ -76,9 +76,7 @@ class NodeHandler(threading.Thread):
 	def find_node_by_mid(self, mid):
                 for i in range (len(self.THREADS)):
                         if self.THREADS[i].MID == mid:
-                                var = self.THREADS[i]
-                                print(var)
-                                return var
+                                return self.THREADS[i]
                         
 class NodeThread(threading.Thread):
 	def __init__(self, client, address):
