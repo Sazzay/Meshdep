@@ -193,6 +193,12 @@ class NodeThread(threading.Thread):
 		data = [userName, path, fileName]
 		self.CLIENT.send((packets.fetchSmallPacket(packets.Packets.REQ_DEL, data)).encode())
 
+	def send_add_folder_req(self, userName, path):
+		pass
+
+	def send_del_folder_req(self, userName, path):
+		pass
+
 class NodeServer:
 	def __init__(self, host, port, peers):
 		self.HOST = host
