@@ -92,7 +92,8 @@ class NodeThread(threading.Thread):
 		self.MID = None
 		self.TID = 0
 		self.SPACE = 0
-                self.ADD_FOLDER_BUSY = False
+		self.ADD_FOLDER_BUSY = False
+
 		threading.Thread.__init__(self)
 
 	def run(self):
@@ -202,11 +203,10 @@ class NodeThread(threading.Thread):
 
                 data =[userName, path]
                 self.CLIENT.send((packets.fetchSmallPacket(packets.Packets.REQ_ADD_FOLDER, data)).encode())
-		
 
 	def send_del_folder_req(self, userName, path):
-                pass
-                
+		pass
+
 class NodeServer:
 	def __init__(self, host, port, peers):
 		self.HOST = host
