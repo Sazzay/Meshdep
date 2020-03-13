@@ -87,3 +87,21 @@ class Database:
 			"VALUES (%(UserName)s, %(Password)s)")
 
 		query_fields = (userName, password)
+
+	def queryGatherUser(self, userName, password):
+		cursor = self.CONN.cursor()
+
+		query = ("SELECT EXISTS(SELECT * FROM users WHERE"
+				"(UserName, Password) ="
+				"VALUES (%s, %s))")
+		query_fields = (userName, password)
+		cursor.execute(query, query_fields)
+		
+		if (cursor.fetchone() == None):
+			#No hit in DB, return False
+			cursor.close()
+			return False
+		else:
+			cursor.close()
+			return True
+
