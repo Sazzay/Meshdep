@@ -55,6 +55,9 @@ class NodeClient:
 			packets.Packets.RESP_TRANSFER, 
 			data).encode()
 			))
+
+	def send_del_resp(self, success):
+		pass
 	# recv functions #
 
 	# cleanse functions #

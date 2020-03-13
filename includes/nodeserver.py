@@ -85,6 +85,7 @@ class NodeThread(threading.Thread):
 	def __init__(self, client, address):
 		self.SPACE_BUSY = False
 		self.TRANSFER_BUSY = False
+		self.DEL_BUSY = False
 		self.CLIENT = client
 		self.ADDRESS = address
 		self.TRANSFERS = []
@@ -128,7 +129,7 @@ class NodeThread(threading.Thread):
 		return self.ADDRESS[0]
 
 	def fetch_transfer(self, mode, fileName, path, userName, msgLen, overwrite):
-		while self.TRANSFER_BUSY:
+		while self.SPACE_BUSY or self.TRANSFER_BUSY or self.DEL_BUSY:
 			pass
 
 		self.TRANSFER_BUSY = True
@@ -165,15 +166,26 @@ class NodeThread(threading.Thread):
 		self.TRANSFERS.append(json.loads(data.decode())[1])
 		print("[SERVER] Received a response with an availble transfer node: %s" % json.loads(data.decode())[1])
 
+	def recv_del_resp(self, success):
+		self.DEL_BUSY = False
+		
+		if success == True:
+			print("[SERVER] Node reports the file deletion was successful.")
+		else:
+			print("[SERVER] Node reports the file deletion failed.")
+
 	def send_space_req(self):
-		while self.SPACE_BUSY:
+		while self.SPACE_BUSY or self.TRANSFER_BUSY or self.DEL_BUSY:
 			pass
 
 		self.SPACE_BUSY = True
 		self.CLIENT.send((packets.fetchReqPacket(packets.Packets.REQ_SPACE)).encode())
 
 	def send_del_req(self, data):
-		pass
+		while self.SPACE_BUSY or self.TRANSFER_BUSY or self.DEL_BUSY:
+			pass
+
+		self.DEL_BUSY = True
 
 class NodeServer:
 	def __init__(self, host, port, peers):

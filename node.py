@@ -38,10 +38,8 @@ while True:
 
 			try:
 				fileops.rm_file(pckt[0], pckt[1], pckt[2])
-				print("[NODE] Deleted the requested file, sending success response...")
 				nc.send_del_resp(True)
 			except:
-				print("[NODE] Failed to delete the requested file, sending fail response...")
 				nc.send_del_resp(False)
 	except Exception as ex:
 		print("[NODE] Exception raised while receiving a packet: %s" % ex.args[0])
