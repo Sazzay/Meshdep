@@ -16,7 +16,7 @@ db = database.Database("81.170.171.18", "8159", "johan", "oq29pqxe", "meshdep")
 ns = nodeserver.NodeServer("127.0.0.1", "6220", 3)
 #hs = httpserver.RequestHandler(db)
 
-db.queryFileAddition("ServerRobban", utils.fetch_mid(), "/Mina Coola Bilar", 5110, "volvo7402.jpg")
+db.queryFileAddition("ServerRobban", utils.fetch_mid(), "Mina Coola Bilar", 5110, "volvo740.jpg")
 
 test = ns.NHT.find_node(60)
 test.send_del_req("ServerRobban", "Mina Coola Bilar", "volvo740.jpg")

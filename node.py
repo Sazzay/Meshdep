@@ -3,6 +3,7 @@ from includes import nodefilehandler
 from includes import packets
 from includes import fileops
 from includes import utils
+from includes import database
 import json
 import time
 
@@ -11,7 +12,7 @@ print("[NODE] Node starting...")
 HOST = "127.0.0.1"
 PORT = "6220"
 nc = nodeclient.NodeClient(HOST, PORT)
-db = db.Database("192.168.1.240", "8159", "root", "lol123", "meshdep")
+db = database.Database("192.168.1.240", "8159", "root", "lol123", "meshdep")
 
 while True:
 	try:
@@ -68,3 +69,5 @@ while True:
 	except Exception as ex:
 		print("[NODE] Exception raised while receiving a packet: %s" % ex.args[0])
 		break
+
+del db
