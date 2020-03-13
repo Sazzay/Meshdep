@@ -9,6 +9,7 @@ class Packets(str, Enum):
 	REQ_TRANSFER = "REQ_TRANSFER"
 	RESP_TRANSFER = "RESP_TRANSFER"
 	REQ_DEL = "REQ_DEL"
+	RESP_DEL = "RESP_DEL"
 
 def fetchReqPacket(packetType):
 	if (isinstance(packetType, Packets)):
@@ -19,7 +20,7 @@ def fetchReqPacket(packetType):
 def fetchSmallPacket(packetType, data):
 	if (isinstance(packetType, Packets)):
 		if (sys.getsizeof(data) + sys.getsizeof(packetType)) > 1024:
-			print("[PACKETS] The amount of data has exceeded the maximum of 256 bytes")
+			print("[PACKETS] The amount of data has exceeded the maximum of 1024 bytes")
 		else:
 			return json.dumps([packetType, data])
 	else:

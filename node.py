@@ -1,6 +1,7 @@
 from includes import nodeclient
 from includes import nodefilehandler
 from includes import packets
+from includes import fileops
 import json
 import time
 
@@ -32,6 +33,14 @@ while True:
 
 			nc.TRANSFERS.append(thread)
 			nc.send_transfer_resp(tid, port)
+		if rtype == packets.Packets.REQ_DEL:
+			pckt = json.loads(recv.decode())[1]
+
+			try:
+				fileops.rm_file(pckt[0], pckt[1], pckt[2])
+				nc.send_del_resp(True)
+			except:
+				nc.send_del_resp(False)
 	except Exception as ex:
 		print("[NODE] Exception raised while receiving a packet: %s" % ex.args[0])
 		break

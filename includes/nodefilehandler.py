@@ -1,5 +1,7 @@
 from includes import fileops
 from includes import packets
+from includes import database as db
+from includes import utils
 from _thread import *
 import socket
 import threading 
@@ -9,6 +11,8 @@ import json
 class NodeFileHandler(threading.Thread):
 	def __init__(self, mode, host, port, fileName, path, userName, msgLen, overwrite):
 		self.MODE = mode
+		self.MID = utils.fetch_mid()
+		self.DB = None
 		self.CLIENT = None
 		self.ADDR = None
 		self.FILENAME = fileName
@@ -26,9 +30,16 @@ class NodeFileHandler(threading.Thread):
 			self.SOCK.bind((self.HOST, self.PORT))
 			self.SOCK.listen(1)
 
-			print("[NODE] Opened a NodeFileReceiver socket on %s" % repr(self) + " waiting on connection...")	
+			print("[NODE] Opened a NodeFileHandler socket on %s" % repr(self) + " waiting on connection...")	
 		except:
 			print("[NODE] Failed to open a NodeFileReceiver socket on " + repr(self))
+
+		try:
+			self.DB = db.Database("192.168.1.240", "8159", "root", "lol123", "meshdep")
+			print("[NODE] Established a database connection for file operation.")
+		except:
+			print("[NODE] Failed to open a database connection. Can not proceed with file transfer...")
+			self.SOCK.close()
 
 
 	def __repr__(self):
@@ -69,10 +80,15 @@ class NodeFileHandler(threading.Thread):
 				fa.write(recv)
 				tbytes += 32768
 
-			fa.close()
 			print("Successfully received file %s" % repr(fa))
+			db.queryFileAddition(self.USER, utils.fetch_mid(), self.PATH, self.LENGTH, self.FILENAME)
 		except ConnectionResetError:
 			print("[NODE] NodeFileReceiver socket closed.")
+
+		fa.close()
+		del db
+
+
 
 	def exec_send(self):
 		try:
@@ -83,6 +99,8 @@ class NodeFileHandler(threading.Thread):
 			while data:
 				self.CLIENT.send(data)
 				data = f.read(32768)
+
+			print("[NODE] Successfully sent the file %s to server to be relayed to %s" % (self.FILENAME, self.USER))
 		except Exception as ex:
 			print("[NODE] Could not complete transfer, exception: %s" % ex)
 			return

@@ -33,19 +33,19 @@ class FileAdder:
 		self.FILEOBJ.close()
 
 
-def rm_file(self, user, path, file_name):
-	if os.path.isfile('Data' + '/' + user + '/' + path + '/' + file_name):
-		os.remove('Data' + '/' + user + '/' + path + '/' + file_name)
+def rm_file(user, path, filename):
+	if os.path.isfile('Data' + '/' + user + '/' + path + '/' + filename):
+		os.remove('Data' + '/' + user + '/' + path + '/' + filename)
 	else:
 		print("[NODE] The path specified is not a file, can not complete.")
 
-def add_folder(self, user, path):
+def add_folder(user, path):
 	if not os.path.exists('Data' + '/' + user + '/' + path):
 		os.makedirs('Data' + '/' + user + '/' + path)
 	else:
 		print("[NODE] Tried to add a folder that already exist.")
 
-def rm_folder(self, user, path):
+def rm_folder(user, path):
 	if os.path.exists('Data' + '/' + user + '/' + path):
 		os.removedirs('Data' + '/' + user + '/' + path)
 	else:
