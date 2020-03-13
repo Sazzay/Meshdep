@@ -39,6 +39,10 @@ class Database:
 		cursor.execute(query, (userName,))
 		return cursor.fetchone()[0]
 
+	def queryFileId(self, machineId, path, filename):
+		cursor = self.CONN.cursor()
+		query = ("SELECT FileId FROM files WHERE Path = %s AND Filename = %s AND NodeId = %s")
+
 	def queryFileAddition(self, userName, machineId, path, size, fileName):
 		userId = self.queryUserId(userName)
 
@@ -63,7 +67,7 @@ class Database:
 		cursor.close()
 		
 
-	def queryFileDeletion(self, userName, machineId, path, fileName):
+	def queryFileDeletion(self, machineId, userName, path, fileName):
 		userId = self.queryUserId(userName)
 
 		if userId == None:
@@ -96,7 +100,7 @@ class Database:
 				"VALUES (%s, %s))")
 		query_fields = (userName, password)
 		cursor.execute(query, query_fields)
-		
+
 		if (cursor.fetchone() == None):
 			#No hit in DB, return False
 			cursor.close()
@@ -104,4 +108,10 @@ class Database:
 		else:
 			cursor.close()
 			return True
+
+	def queryRemoveFolderContents(self, machineId, userName, path):
+		cursor = self.CONN.cursor()
+
+
+		query = ("")
 
