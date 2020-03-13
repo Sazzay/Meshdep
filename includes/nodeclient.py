@@ -44,9 +44,6 @@ class NodeClient:
 		print("[NODE] Received a space request, sending space response: %s" % space)
 
 	def send_transfer_resp(self, tid, port):
-		# fetch an availble port based on
-		# active socket threads in 
-
 		data = {}
 		data[tid] = port
 
@@ -57,7 +54,11 @@ class NodeClient:
 			))
 
 	def send_del_resp(self, success):
-		pass
+		self.SOCK.send((
+			packets.fetchSmallPacket(
+			packets.Packets.RESP_DEL,
+			success).encode()
+			))
 	# recv functions #
 
 	# cleanse functions #
