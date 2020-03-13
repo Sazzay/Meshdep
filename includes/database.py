@@ -63,10 +63,16 @@ class Database:
 		cursor.close()
 		
 
-	def queryFileDeletion(self):
-		# this function should query the database
-		# to delete the relevant file.
-		pass
+	def queryFileDeletion(self, userName, machineId, path, fileName):
+		userId = self.queryUserId(userName)
+
+		if userId == None:
+			print("[DB] Invalid userName provided to queryFileAddition...")
+			return
+
+		cursor = self.CONN.cursor()
+
+		query = ("DELETE ")
 
 	def queryFileMove(self):
 		# this function should query the database to

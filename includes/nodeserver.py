@@ -74,10 +74,13 @@ class NodeHandler(threading.Thread):
 		return None
 
 	def find_node_by_mid(self, mid):
-                for i in range (len(self.THREADS)):
-                        if self.THREADS[i].MID == mid:
-                                return self.THREADS[i]
-                        
+		for i in range(len(self.THREADS)):
+			if self.THREADS[i].MID == mid:
+				return self.THREADS[i]
+
+		return None
+			
+		
 class NodeThread(threading.Thread):
 	def __init__(self, client, address):
 		self.SPACE_BUSY = False
@@ -188,9 +191,7 @@ class NodeServer:
 			self.NHT.daemon = True
 			self.NHT.start()
 
-			print("[SERVER] Opened a NodeHandler & socket on " + repr(self))
-
-	                
+			print("[SERVER] Opened a NodeHandler & socket on " + repr(self))	
 		except:
 			print("[SERVER] Failed to open a socket on " + repr(self))
 

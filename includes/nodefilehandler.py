@@ -38,7 +38,7 @@ class NodeFileHandler(threading.Thread):
 			self.DB = db.Database("192.168.1.240", "8159", "root", "lol123", "meshdep")
 			print("[NODE] Established a database connection for file operation.")
 		except:
-			print("[NODE] Failed to open a database connection. Can not proceed with file transfer")
+			print("[NODE] Failed to open a database connection. Can not proceed with file transfer...")
 			self.SOCK.close()
 
 
@@ -80,11 +80,15 @@ class NodeFileHandler(threading.Thread):
 				fa.write(recv)
 				tbytes += 32768
 
-			fa.close()
 			print("Successfully received file %s" % repr(fa))
-			# query the database that it was added
+			db.queryFileAddition(self.USER, utils.fetch_mid(), self.PATH, self.LENGTH, self.FILENAME)
 		except ConnectionResetError:
 			print("[NODE] NodeFileReceiver socket closed.")
+
+		fa.close()
+		del db
+
+
 
 	def exec_send(self):
 		try:
