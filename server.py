@@ -4,6 +4,7 @@
 from includes import serverfilehandler
 from includes import database
 from includes import nodeserver
+from includes import utils
 #from includes import httpserver
 import time
 import os
@@ -14,6 +15,8 @@ ACTIVE = True
 db = database.Database("192.168.1.240", "8159", "root", "lol123", "meshdep")
 ns = nodeserver.NodeServer("127.0.0.1", "6220", 3)
 #hs = httpserver.RequestHandler(db)
+
+db.queryFileAddition("ServerRobban", utils.fetch_mid(), "/Mina Coola Bilar", 5110, "volvo740.jpg")
 
 # TESTING SERVER ===> NODE TRANSFER #
 #with open("2020-02-13-raspbian-buster-full.zip", "rb") as f:

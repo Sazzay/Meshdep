@@ -139,6 +139,7 @@ class NodeThread(threading.Thread):
 				if str(tid) in self.TRANSFERS[i]:
 					ret = self.TRANSFERS[i].get(str(tid))
 					del self.TRANSFERS[i]
+					print(self.TRANSFERS)
 					return ret
 
 			attempts += 1

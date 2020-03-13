@@ -1,9 +1,6 @@
 import socket
-import os
-import platform
-import subprocess
-import psutil
 from includes import packets
+from includes import utils
 
 class NodeClient:
 	def __init__(self, ip, port):
@@ -28,7 +25,7 @@ class NodeClient:
 
 	# send functions #
 	def send_handshake(self):
-		mid = self.fetch_mid()
+		mid = utils.fetch_mid()
 		self.SOCK.send((
 			packets.fetchSmallPacket(
 			packets.Packets.HANDSHAKE, 
@@ -36,7 +33,7 @@ class NodeClient:
 			))
 
 	def send_space_resp(self):
-		space = self.fetch_avail_space()
+		space = utils.fetch_avail_space()
 
 		self.SOCK.send((
 			packets.fetchSmallPacket(
@@ -86,19 +83,3 @@ class NodeClient:
 				break
 
 		return port
-
-	def fetch_avail_space(self):
-		return psutil.disk_usage('/').free
-
-	def fetch_mid(self):
-		if platform.system() == "Linux":
-			try:
-				return os.popen("cat /etc/machine-id").read()
-			except:
-				print("[NODE] There was an error trying to fetch /etc/machine-id.")
-
-		if platform.system() == "Windows":
-			try:
-				return subprocess.check_output('wmic csproduct get uuid').decode().split('\n')[1].strip()
-			except:
-				print("[NODE] Subprocess WMIC failed to fetch /etc/machine-id UUID equilivent.")

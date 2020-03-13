@@ -1,4 +1,6 @@
 import mysql.connector
+from datetime import datetime
+from includes import utils
 
 class Database:
 	def __init__(self, ip, port, user, password, database):
@@ -31,13 +33,35 @@ class Database:
 		except:
 			print("[DB] DB connection halting process failed.")
 
-	def queryFileAddition(self):
-		# this function should query the database
-		# to add relevant information about
-		# the file that is being added to a node
-		# should only be called after the node successfully
-		# retrieved data.
-		pass
+	def queryUserId(self, userName):
+		cursor = self.CONN.cursor()
+		query = "SELECT UserId FROM users WHERE UserName = %s"
+		cursor.execute(query, (userName,))
+		return cursor.fetchone()[0]
+
+	def queryFileAddition(self, userName, machineId, path, size, fileName):
+		userId = self.queryUserId(userName)
+
+		if userId == None:
+			print("[DB] Invalid userName provided to queryFileAddition...")
+			return
+
+		cursor = self.CONN.cursor()
+
+		query = ("INSERT INTO files"
+			"(UserId, NodeId, Lastmodified, Path, Size, Filename)"
+			"VALUES (%s, %s, %s, %s, %s, %s)")
+
+		query_fields = (userId, machineId, datetime.now(), path, size, fileName)
+
+		try:
+			cursor.execute(query, query_fields)
+			self.CONN.commit()
+		except:
+			print("[DB] Could not commit the file to the database.")
+
+		cursor.close()
+		
 
 	def queryFileDeletion(self):
 		# this function should query the database

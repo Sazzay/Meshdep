@@ -1,5 +1,7 @@
 from includes import fileops
 from includes import packets
+from includes import database as db
+from includes import utils
 from _thread import *
 import socket
 import threading 
@@ -9,6 +11,8 @@ import json
 class NodeFileHandler(threading.Thread):
 	def __init__(self, mode, host, port, fileName, path, userName, msgLen, overwrite):
 		self.MODE = mode
+		self.MID = utils.fetch_mid()
+		self.DB = None
 		self.CLIENT = None
 		self.ADDR = None
 		self.FILENAME = fileName
@@ -29,6 +33,13 @@ class NodeFileHandler(threading.Thread):
 			print("[NODE] Opened a NodeFileHandler socket on %s" % repr(self) + " waiting on connection...")	
 		except:
 			print("[NODE] Failed to open a NodeFileReceiver socket on " + repr(self))
+
+		try:
+			self.DB = db.Database("192.168.1.240", "8159", "root", "lol123", "meshdep")
+			print("[NODE] Established a database connection for file operation.")
+		except:
+			print("[NODE] Failed to open a database connection. Can not proceed with file transfer")
+			self.SOCK.close()
 
 
 	def __repr__(self):
@@ -71,6 +82,7 @@ class NodeFileHandler(threading.Thread):
 
 			fa.close()
 			print("Successfully received file %s" % repr(fa))
+			# query the database that it was added
 		except ConnectionResetError:
 			print("[NODE] NodeFileReceiver socket closed.")
 
