@@ -10,6 +10,10 @@ class Packets(str, Enum):
 	RESP_TRANSFER = "RESP_TRANSFER"
 	REQ_DEL = "REQ_DEL"
 	RESP_DEL = "RESP_DEL"
+	REQ_ADD_FOLDER = "REQ_ADD_FOLDER"
+	REQ_DEL_FOLDER = "REQ_DEL_FOLDER"
+	RESP_ADD_FOLDER = "RESP_ADD_FOLDER"
+	RESP_DEL_FOLDER = "RESP_DEL_FOLDER"
 
 def fetchReqPacket(packetType):
 	if (isinstance(packetType, Packets)):
