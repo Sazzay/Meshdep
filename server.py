@@ -20,8 +20,8 @@ db.queryFileAddition("ServerRobban", utils.fetch_mid(), "/Mina Coola Bilar", 511
 
 time.sleep(10)
 
-test = ns.NHT.find_node_by_mid("36D56B8A-AB72-AFB5-46C4-049226D12DCD")
-print(test)
+#test = ns.NHT.find_node_by_mid("36D56B8A-AB72-AFB5-46C4-049226D12DCD")
+#print(test)
 
 # TESTING SERVER ===> NODE TRANSFER #
 #with open("2020-02-13-raspbian-buster-full.zip", "rb") as f:
