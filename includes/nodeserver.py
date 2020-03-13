@@ -189,6 +189,7 @@ class NodeThread(threading.Thread):
 			pass
 
 		self.DEL_BUSY = True
+                self.CLIENT.send((packets.fetchSmallPacket(packets.Packets.REQ_DEL, data)).encode())
 
 class NodeServer:
 	def __init__(self, host, port, peers):
