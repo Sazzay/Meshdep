@@ -12,13 +12,14 @@ import os
 print("[SERVER] Starting the Database & NodeServer...")
 
 ACTIVE = True
-db = database.Database("192.168.1.240", "8159", "root", "lol123", "meshdep")
+db = database.Database("81.170.171.18", "8159", "johan", "oq29pqxe", "meshdep")
 ns = nodeserver.NodeServer("127.0.0.1", "6220", 3)
 #hs = httpserver.RequestHandler(db)
 
 db.queryFileAddition("ServerRobban", utils.fetch_mid(), "/Mina Coola Bilar", 5110, "volvo7402.jpg")
 
-time.sleep(10)
+test = ns.NHT.find_node(60)
+test.send_del_req("ServerRobban", "Mina Coola Bilar", "volvo740.jpg")
 
 #test = ns.NHT.find_node_by_mid("36D56B8A-AB72-AFB5-46C4-049226D12DCD")
 #print(test)

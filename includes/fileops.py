@@ -38,6 +38,7 @@ def rm_file(user, path, filename):
 		os.remove('Data' + '/' + user + '/' + path + '/' + filename)
 	else:
 		print("[NODE] The path specified is not a file, can not complete.")
+		raise FileNotFoundError
 
 def add_folder(user, path):
 	if not os.path.exists('Data' + '/' + user + '/' + path):
