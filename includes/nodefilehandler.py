@@ -26,7 +26,7 @@ class NodeFileHandler(threading.Thread):
 			self.SOCK.bind((self.HOST, self.PORT))
 			self.SOCK.listen(1)
 
-			print("[NODE] Opened a NodeFileReceiver socket on %s" % repr(self) + " waiting on connection...")	
+			print("[NODE] Opened a NodeFileHandler socket on %s" % repr(self) + " waiting on connection...")	
 		except:
 			print("[NODE] Failed to open a NodeFileReceiver socket on " + repr(self))
 
@@ -83,6 +83,8 @@ class NodeFileHandler(threading.Thread):
 			while data:
 				self.CLIENT.send(data)
 				data = f.read(32768)
+
+			print("[NODE] Successfully sent the file %s to server to be relayed to %s" % (self.FILENAME, self.USER))
 		except Exception as ex:
 			print("[NODE] Could not complete transfer, exception: %s" % ex)
 			return

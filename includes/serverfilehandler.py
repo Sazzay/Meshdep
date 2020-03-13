@@ -34,6 +34,9 @@ class ServerFileHandler(threading.Thread):
 		self.DATA.append(data)
 
 	def dequeue(self):
+		while len(self.DATA) == 0:
+			pass
+
 		return self.DATA.pop(0)
 
 	def run(self):
@@ -52,18 +55,14 @@ class ServerFileHandler(threading.Thread):
 
 		try:
 			while tbytes < self.LENGTH:
-				while len(self.DATA) > 0:
-					pass
-
 				recv = self.SOCK.recv(32768)
 				self.enqueue(recv)
 				tbytes += 32768
 
 			print("[SERVER] Successfully received file %s from %s" % (self.FILENAME, self.HOST))
-			del self
+			self.SOCK.close()
 		except ConnectionResetError:
 			print("[NODE] NodeFileReceiver socket closed.")
-			del self
 
 	def exec_send(self):
 		percentage = round(self.LENGTH / 4, 1)
@@ -84,8 +83,8 @@ class ServerFileHandler(threading.Thread):
 				tbytes += 32768
 
 			print("[SERVER] Successfully sent file %s to %s" % (self.FILENAME, repr(self)))
-			del self
+			self.SOCK.close()
 		except ConnectionResetError:
 			print("[SERVER] File transfer operation to transfer node %s failed, remote host closed connection." % repr(self))
-			del self
+			self.SOCK.close()
 
