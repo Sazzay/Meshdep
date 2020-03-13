@@ -9,6 +9,7 @@ class Packets(str, Enum):
 	REQ_TRANSFER = "REQ_TRANSFER"
 	RESP_TRANSFER = "RESP_TRANSFER"
 	REQ_DEL = "REQ_DEL"
+	RESP_DEL = "RESP_DEL"
 
 def fetchReqPacket(packetType):
 	if (isinstance(packetType, Packets)):

@@ -113,6 +113,8 @@ class NodeThread(threading.Thread):
 					self.recv_space(recv)
 				if (rtype == packets.Packets.RESP_TRANSFER):
 					self.recv_transfer_resp(recv)
+				if rtype == packets.Packets.RESP_DEL:
+					self.recv_del_resp(recv)
 				# add the other types below
 			except Exception as ex:
 				print("[SERVER] Exception raised in thread: %s" % ex.args[0])
@@ -166,8 +168,9 @@ class NodeThread(threading.Thread):
 		self.TRANSFERS.append(json.loads(data.decode())[1])
 		print("[SERVER] Received a response with an availble transfer node: %s" % json.loads(data.decode())[1])
 
-	def recv_del_resp(self, success):
+	def recv_del_resp(self, data):
 		self.DEL_BUSY = False
+		success = json.loads(data.decode())[1]
 		
 		if success == True:
 			print("[SERVER] Node reports the file deletion was successful.")
