@@ -19,7 +19,7 @@ ns = nodeserver.NodeServer("127.0.0.1", "6220", 3)
 db.queryFileAddition("ServerRobban", utils.fetch_mid(), "/Mina Coola Bilar", 5110, "volvo7402.jpg")
 
 test = ns.NHT.find_node(60)
-test.send_del_req("ServerRobban", "Mina Coola Bilar", "volvo740.jpg")
+test.send_add_folder_req("ServerRobban", "test")
 
 #test = ns.NHT.find_node_by_mid("36D56B8A-AB72-AFB5-46C4-049226D12DCD")
 #print(test)
