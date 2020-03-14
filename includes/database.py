@@ -35,20 +35,41 @@ class Database:
 
 	def queryUserId(self, userName):
 		cursor = self.CONN.cursor()
-		query = "SELECT UserId FROM users WHERE UserName = %s"
-		cursor.execute(query, (userName,))
-		return cursor.fetchone()[0]
 
-	def queryFileId(self, machineId, path, filename):
+		query = "SELECT UserId FROM users WHERE UserName = %s"
+
+		cursor.execute(query, (userName,))
+
+		ret = cursor.fetchone()[0]
+
+		cursor.close()
+		return ret
+
+	def queryFileId(self, machineId, userName, path, filename):
+		userId = self.queryUserId(userName)
+
+		if userId == None:
+			print("[DB] Invalid userName provided to queryFileId...")
+			return
+
 		cursor = self.CONN.cursor()
-		query = ("SELECT FileId FROM files WHERE Path = %s AND Filename = %s AND NodeId = %s")
+
+		query = ("SELECT FileId FROM files WHERE UserId = %s AND Path = %s AND Filename = %s AND NodeId = %s")
+		query_fields = (userId, path, filename, machineId)
+
+		cursor.execute(query, query_fields)
+
+		ret = cursor.fetchone()
+		cursor.close()
+
+		return ret
 
 	def queryFileAddition(self, userName, machineId, path, size, fileName):
 		userId = self.queryUserId(userName)
 
 		if userId == None:
 			print("[DB] Invalid userName provided to queryFileAddition...")
-			return
+			raise ValueError
 
 		cursor = self.CONN.cursor()
 
@@ -65,18 +86,25 @@ class Database:
 			print("[DB] Could not commit the file to the database.")
 
 		cursor.close()
-		
 
-	def queryFileDeletion(self, machineId, userName, path, fileName):
-		userId = self.queryUserId(userName)
+	def queryFileDeletion(self, machineId, userName, path, filename):
+		fileId = self.queryFileId(machineId, userName, path, filename)
 
-		if userId == None:
-			print("[DB] Invalid userName provided to queryFileAddition...")
-			return
+		if fileId == None:
+			print("[DB] Could not fetch a appropriate fileId")
+			raise ValueError
 
 		cursor = self.CONN.cursor()
 
-		query = ("DELETE ")
+		query = "DELETE FROM files WHERE FileId = %s"
+
+		try:
+			cursor.execute(query, (fileId))
+			self.CONN.commit()
+		except Exception as ex:
+			print("[DB] Could not commit the deletion to the database. Exception %s" % ex)
+
+		cursor.close()
 
 	def queryFileMove(self):
 		# this function should query the database to
