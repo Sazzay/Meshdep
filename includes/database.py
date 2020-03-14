@@ -138,8 +138,21 @@ class Database:
 			return True
 
 	def queryRemoveFolderContents(self, machineId, userName, path):
+		userId = self.queryUserId(userName)
+
+		if userId == None:
+			print("[DB] Invalid userName provided to queryFileAddition...")
+			raise ValueError
+
 		cursor = self.CONN.cursor()
 
+		query = ("DELETE FROM files WHERE UserId = %s AND NodeId = %s AND Path LIKE %s")
+		query_fields = (userId, machineId, path + "%")
 
-		query = ("")
+		try:
+			cursor.execute(query, query_fields)
+			self.CONN.commit()
+		except Exception as ex:
+			print("[DB] Could not commit the deletion to the database. Exception %s" % ex)
 
+		cursor.close()
