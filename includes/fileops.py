@@ -1,4 +1,5 @@
 import os
+import shutil
 
 class FileAdder:
 	def __init__(self, user, filename, path):
@@ -49,7 +50,10 @@ def add_folder(user, path):
 
 def rm_folder(user, path):
 	if os.path.exists('Data' + '/' + user + '/' + path):
-		os.removedirs('Data' + '/' + user + '/' + path)
+		try:
+			shutil.rmtree('Data' + '/' + user + '/' + path)
+		except Exception as ex:
+			print("[NODE] User %s got exception %s while trying to remove folder" (user, ex))
 	else:
 		print("[NODE] User %s tried to remove a folder that does not exist." % user)
 		raise FileNotFoundError

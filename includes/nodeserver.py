@@ -133,12 +133,19 @@ class NodeThread(threading.Thread):
 
 		return self.TID
 
+	def isBusy(self):
+		while (self.SPACE_BUSY 
+		or self.TRANSFER_BUSY 
+		or self.DEL_BUSY 
+		or self.ADD_FOLDER_BUSY
+		or self.DEL_FOLDER_BUSY):
+			pass
+
 	def fetch_ip(self):
 		return self.ADDRESS[0]
 
 	def fetch_transfer(self, mode, fileName, path, userName, msgLen, overwrite):
-		while self.SPACE_BUSY or self.TRANSFER_BUSY or self.DEL_BUSY or self.ADD_FOLDER_BUSY:
-			pass
+		self.isBusy()
 
 		self.TRANSFER_BUSY = True
 		tid = self.generate_tid()
@@ -203,15 +210,13 @@ class NodeThread(threading.Thread):
 			print("[SERVER] Node reports the folder deletion failed.")
 
 	def send_space_req(self):
-		while self.SPACE_BUSY or self.TRANSFER_BUSY or self.DEL_BUSY or self.ADD_FOLDER_BUSY:
-			pass
+		self.isBusy()
 
 		self.SPACE_BUSY = True
 		self.CLIENT.send((packets.fetchReqPacket(packets.Packets.REQ_SPACE)).encode())
 
 	def send_del_req(self, userName, path, fileName):
-		while self.SPACE_BUSY or self.TRANSFER_BUSY or self.DEL_BUSY or self.ADD_FOLDER_BUSY:
-			pass
+		self.isBusy()
 
 		self.DEL_BUSY = True
 
@@ -219,8 +224,7 @@ class NodeThread(threading.Thread):
 		self.CLIENT.send((packets.fetchSmallPacket(packets.Packets.REQ_DEL, data)).encode())
 
 	def send_add_folder_req(self, userName, path):
-		while self.SPACE_BUSY or self.TRANSFER_BUSY or self.DEL_BUSY or self.ADD_FOLDER_BUSY:
-			pass
+		self.isBusy()
 
 		self.ADD_FOLDER_BUSY = True
 
@@ -228,7 +232,12 @@ class NodeThread(threading.Thread):
 		self.CLIENT.send((packets.fetchSmallPacket(packets.Packets.REQ_ADD_FOLDER, data)).encode())
 
 	def send_del_folder_req(self, userName, path):
-		pass
+		self.isBusy()
+
+		self.DEL_FOLDER_BUSY = True
+
+		data = [userName, path]
+		self.CLIENT.send((packets.fetchSmallPacket(packets.Packets.REQ_DEL_FOLDER, data)).encode())
 
 class NodeServer:
 	def __init__(self, host, port, peers):
