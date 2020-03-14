@@ -55,7 +55,7 @@ while True:
 				fileops.add_folder(pckt[0], pckt[1])
 				nc.send_add_folder_resp(True)
 			except:
-				nc.send_del_folder_resp(False)
+				nc.send_add_folder_resp(False)
 
 		if rtype == packets.Packets.REQ_DEL_FOLDER:
 			pckt = json.loads(recv.decode())[1]

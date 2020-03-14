@@ -117,6 +117,10 @@ class NodeThread(threading.Thread):
 					self.recv_transfer_resp(recv)
 				if rtype == packets.Packets.RESP_DEL:
 					self.recv_del_resp(recv)
+				if rtype == packets.Packets.RESP_ADD_FOLDER:
+					self.recv_add_folder_resp(recv)
+				if rtype == packets.Packets.RESP_DEL_FOLDER:
+					self.recv_del_folder_resp(recv)
 				# add the other types below
 			except Exception as ex:
 				print("[SERVER] Exception raised in thread: %s" % ex.args[0])
@@ -178,6 +182,25 @@ class NodeThread(threading.Thread):
 			print("[SERVER] Node reports the file deletion was successful.")
 		else:
 			print("[SERVER] Node reports the file deletion failed.")
+
+	def recv_add_folder_resp(self, data):
+		self.ADD_FOLDER_BUSY = False
+		success = json.loads(data.decode())[1]
+		
+		if success == True:
+			print("[SERVER] Node reports the folder addition was successful.")
+		else:
+			print("[SERVER] Node reports the folder addition failed.")
+
+	def recv_del_folder_resp(self, data):
+		self.DEL_FOLDER_BUSY = False
+
+		success = json.loads(data.decode())[1]
+		
+		if success == True:
+			print("[SERVER] Node reports the folder deletion was successful.")
+		else:
+			print("[SERVER] Node reports the folder deletion failed.")
 
 	def send_space_req(self):
 		while self.SPACE_BUSY or self.TRANSFER_BUSY or self.DEL_BUSY or self.ADD_FOLDER_BUSY:

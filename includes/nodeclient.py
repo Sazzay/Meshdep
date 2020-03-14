@@ -59,6 +59,20 @@ class NodeClient:
 			packets.Packets.RESP_DEL,
 			success).encode()
 			))
+
+	def send_add_folder_resp(self, success):
+		self.SOCK.send((
+			packets.fetchSmallPacket(
+			packets.Packets.RESP_ADD_FOLDER,
+			success).encode()
+			))
+
+	def send_del_folder_resp(self, success):
+		self.SOCK.send((
+			packets.fetchSmallPacket(
+			packets.Packets.RESP_DEL_FOLDER,
+			success).encode()
+			))
 	# recv functions #
 
 	# cleanse functions #

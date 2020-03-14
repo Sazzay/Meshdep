@@ -44,12 +44,12 @@ def add_folder(user, path):
 	if not os.path.exists('Data' + '/' + user + '/' + path):
 		os.makedirs('Data' + '/' + user + '/' + path)
 	else:
-		print("[NODE] Tried to add a folder that already exist.")
+		print("[NODE] User %s tried to add a folder that already exist." % user)
 		raise FileExistsError
 
 def rm_folder(user, path):
 	if os.path.exists('Data' + '/' + user + '/' + path):
 		os.removedirs('Data' + '/' + user + '/' + path)
 	else:
-		print("[NODE] Tried to remove a folder that does not exist.")
+		print("[NODE] User %s tried to remove a folder that does not exist." % user)
 		raise FileNotFoundError
