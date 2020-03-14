@@ -60,8 +60,8 @@ class Database:
 		cursor.execute(query, query_fields)
 
 		ret = cursor.fetchone()
-		print(ret)
 		cursor.close()
+
 		return ret
 
 	def queryFileAddition(self, userName, machineId, path, size, fileName):
@@ -101,8 +101,8 @@ class Database:
 		try:
 			cursor.execute(query, (fileId))
 			self.CONN.commit()
-		except:
-			print("[DB] Could not commit the deletion to the database.")
+		except Exception as ex:
+			print("[DB] Could not commit the deletion to the database. Exception %s" % ex)
 
 		cursor.close()
 
