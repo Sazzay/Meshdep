@@ -81,8 +81,6 @@ class NodeFileHandler(threading.Thread):
 		fa.close()
 		del db
 
-
-
 	def exec_send(self):
 		try:
 			f = open("Data/%s/%s/%s" % (self.USER, self.PATH, self.FILENAME), "rb")

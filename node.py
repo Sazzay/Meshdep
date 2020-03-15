@@ -14,6 +14,9 @@ PORT = "6220"
 nc = nodeclient.NodeClient(HOST, PORT)
 db = database.Database("81.170.171.18", "8159", "johan", "oq29pqxe", "meshdep")
 
+#print(db.queryNodesWithFolder("ServerRobban", "/Mina Coola Bilar"))
+db.queryFolderAddition("ServerRobban", "Mina Coola Bilar/Coolaste")
+
 while True:
 	try:
 		recv = nc.SOCK.recv(1024)
