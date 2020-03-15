@@ -14,44 +14,48 @@
 
 class Helper:
 	__init__(self, db, ns):
-		self.DATABASE = db
-		self.NODE_SERVER = ns
+		self.DB = db
+		self.NS = ns
 
-	__repr__(self):
-		pass
-
-	def addFolder(userName, path):
+	def addFolder(self, userName, path):
 		try:
-			db.queryFolderAddition(userName, path)
+			self.DB.queryFolderAddition(userName, path)
 			return "Successfully added the folder with path %s" % path
 		except:
 			return "Failed to add the folder with path %s" % path
 
-	def delFolder(userName, path):
-		mids = db.queryNodesWithFolder(userName, path)
+	def delFolder(self, userName, path):
+		mids = self.DB.queryNodesWithFolder(userName, path)
 
 		if len(nodes) == 0:
 			return "The amount of nodes containing this folder is zero, something went wrong..."
 		
 		for i in range(len(mids)):
-			node = ns.NHT.find_node_by_mid(mids[i])
+			node = self.NS.NHT.find_node_by_mid(mids[i])
 
-			if node:
+			if node != None:
 				node.send_del_folder_req(userName, path)
 
-		mids = db.queryNodesWithFolder(userName, path)
+		node.isBusy()
+
+		mids = self.DB.queryNodesWithFolder(userName, path)
 
 		if len(mids) > 0
 			return "Failed to remove folder from all nodes, this is most likely due to a node being disconnected."
 		else:
-			return "Successfully removed all folder."
+			return "Successfully removed all folders."
 
-	def addFile():
-		pass
-		#todo, potentially, slightly complicated
+	def delFile(self, mid, userName, path, filename):
+		node = self.NS.NHT.find_node_by_mid(mid)
 
-	def remFile(self, mid, userName, path, filename):
-		pass
+		if node != None:
+			node.send_del_req(userName, path, filename)
+
+		node.isBusy()
 		
+		fileId = self.DB.queryFileId(mid, userName, path, filename)
 
-
+		if fileId != None:
+			return "Successfully deleted the file %s" % filename
+		else
+			return "Something went wrong when deleting %s" % filename
