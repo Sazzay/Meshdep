@@ -187,14 +187,10 @@ class Database:
 
 		cursor.execute(query, query_fields)
 		hitTest = cursor.fetchone()
-		print("Fetchone gave a response of: ", hitTest[0])
 
-		if(hitTest[0] == 0):
-			cursor.close()
-			return False
-		else:
-			cursor.close()
-			return True
+		cursor.close()
 
-	def test():
+		return hitTest[0]
+
+	def test(self):
 		return True

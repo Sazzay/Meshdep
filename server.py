@@ -8,23 +8,41 @@ from includes import utils
 from includes import httpserver
 import time
 import os
+import flask
+import json
 
-print("[SERVER] Starting the Database & NodeServer...")
+print("[SERVER] Starting the Database, NodeServer and Flask...")
 
 ACTIVE = True
 db = database.Database("81.170.171.18", "8159", "johan", "oq29pqxe", "meshdep")
 ns = nodeserver.NodeServer("127.0.0.1", "6220", 3)
-hs = httpserver.HTTPInstance("127.0.0.1", "80", db)
+app = flask.Flask("meshdep", template_folder="html")
+		
+@app.route('/')
+def index():
+	return flask.render_template("index.html")
 
-while ACTIVE:
-    try:
-        time.sleep(0.1)
-    except KeyboardInterrupt:
-        print("[INTERRUPT] KeyboardInterrupt detected, halting DB and Server.")
-        del hs
-        del db
-        del ns
-        ACTIVE = False
+@app.route('/api/register', methods=['POST'])
+def register():
+	return "Test"
+
+@app.route('/api/login', methods=['POST'])
+def login():
+	data = json.loads(flask.request.data)
+	user = data['user']
+	password = data['pass']
+
+	if (db.queryGatherUser(user, password)):
+		return render_template("test.html")
+	else:
+		return "Invalid username or password"
+
+	return "Test"
+
+
+app.run(debug=True)
+del db
+del ns
         
 
 
