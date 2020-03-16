@@ -181,15 +181,20 @@ class Database:
 		cursor = self.CONN.cursor()
 
 		query = ("SELECT EXISTS(SELECT * FROM users WHERE"
-				"(UserName, Password) ="
-				"VALUES (%s, %s))")
+		"(UserName, Password)="
+		"(%s, %s))")
 		query_fields = (userName, password)
-		cursor.execute(query, query_fields)
 
-		if (cursor.fetchone() == None):
-			#No hit in DB, return False
+		cursor.execute(query, query_fields)
+		hitTest = cursor.fetchone()
+		print("Fetchone gave a response of: ", hitTest[0])
+
+		if(hitTest[0] == 0):
 			cursor.close()
 			return False
 		else:
 			cursor.close()
 			return True
+
+	def test():
+		return True

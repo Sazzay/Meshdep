@@ -21,16 +21,34 @@ $(function() {
 		})
 	})
 
-	$("#regForm").submit(function(event) {
-		$.post("api/register", function(data) {
-			console.log("Successfully submitted registration.")
+	$("#regForm").submit(function() {
+		username = $("#regInputEmail").val()
+		password = $("#regInputPassword").val()
+
+		$.ajax({
+			type: 'POST',
+			url: '/api/register',
+			contentType: "application/json; charset=utf-8",
+			data: JSON.stringify({user: username, pass: password}),
+			success: function(result) {
+				alert("Test")
+			}
 		})
 	})
 
-	$("#logInForm").submit(function() {
-		$.post("api/login", function(data) {
-			console.log("Successfully submitted login.")
-		});
+	$("#loginSubButton").click(function() {
+		username = $("#loginInputEmail").val()
+		password = $("#loginInputPassword").val()
+
+		$.ajax({
+			type: 'POST',
+			url: '/api/login',
+			contentType: "application/json; charset=utf-8",
+			data: JSON.stringify({user: username, pass: password}),
+			success: function(result) {
+				alert(result)
+			}
+		})
 	})
 
 	$("#regSubButton").click(function() {
