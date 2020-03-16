@@ -20,4 +20,25 @@ $(function() {
 			$("#logInForm").fadeIn(400)
 		})
 	})
+
+	$("#regForm").submit(function(event) {
+		$.post("api/register", function(data) {
+			console.log("Successfully submitted registration.")
+		})
+	})
+
+	$("#logInForm").submit(function() {
+		$.post("api/login", function(data) {
+			console.log("Successfully submitted login.")
+		});
+	})
+
+	$("#regSubButton").click(function() {
+		if ($('#regInputPassword').val() == $('#regInputConfPassword').val()) {
+			$("#regInputConfPassword")[0].setCustomValidity("")
+			$("#regForm").submit();
+		} else {
+			$("#regInputConfPassword")[0].setCustomValidity("Passwords do not match.")
+		}
+	})
 });
