@@ -18,11 +18,11 @@ ns = nodeserver.NodeServer("127.0.0.1", "6220", 3)
 
 
 test = ns.NHT.find_node(60)
-test.send_del_req("ServerRobban", "Mina Coola Bilar", "volvo740.jpg")
+#test.send_del_req("ServerRobban", "Mina Coola Bilar", "volvo740.jpg")
 
 time.sleep(5)
 
-test.send_add_folder_req("ServerRobban", "Mina Coolaste Bilar")
+
 
 #test = ns.NHT.find_node_by_mid("36D56B8A-AB72-AFB5-46C4-049226D12DCD")
 #print(test)

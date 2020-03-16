@@ -12,7 +12,9 @@ print("[NODE] Node starting...")
 HOST = "127.0.0.1"
 PORT = "6220"
 nc = nodeclient.NodeClient(HOST, PORT)
-db = database.Database("192.168.1.240", "8159", "root", "lol123", "meshdep")
+db = database.Database("81.170.171.18", "8159", "johan", "oq29pqxe", "meshdep")
+
+#print(db.queryNodesWithFolder("ServerRobban", "/Mina Coola Bilar"))
 
 while True:
 	try:
@@ -47,7 +49,7 @@ while True:
 				nc.send_del_resp(True)
 			except:
 				nc.send_del_resp(False)
-
+		
 		if rtype == packets.Packets.REQ_ADD_FOLDER:
 			pckt = json.loads(recv.decode())[1]
 
