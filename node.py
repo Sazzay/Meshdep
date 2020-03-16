@@ -14,6 +14,8 @@ PORT = "6220"
 nc = nodeclient.NodeClient(HOST, PORT)
 db = database.Database("81.170.171.18", "8159", "johan", "oq29pqxe", "meshdep")
 
+#print(db.queryNodesWithFolder("ServerRobban", "/Mina Coola Bilar"))
+
 while True:
 	try:
 		recv = nc.SOCK.recv(1024)
@@ -47,7 +49,7 @@ while True:
 				nc.send_del_resp(True)
 			except:
 				nc.send_del_resp(False)
-
+		
 		if rtype == packets.Packets.REQ_ADD_FOLDER:
 			pckt = json.loads(recv.decode())[1]
 

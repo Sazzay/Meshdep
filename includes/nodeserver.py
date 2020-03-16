@@ -79,6 +79,19 @@ class NodeHandler(threading.Thread):
 				return self.THREADS[i]
 
 		return None
+
+	def are_all_mids_active(self, mids):
+		count = 0
+
+		for i in range(len(mids)):
+			for i2 in range(len(self.THREADS)):
+				if mids[i] == self.THREADS[i2].MID:
+					count += 1
+
+		if count == len(mids):
+			return True
+		else:
+			return False
 			
 		
 class NodeThread(threading.Thread):
