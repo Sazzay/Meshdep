@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="../css/meshdep.css">
+<body class="text-center">
+	<div class="container h-100">
+  		<div class="row h-100 justify-content-center align-items-center">
+  			<form class="form-signin img-fluid animated fadeIn delay-1s" id="logInForm">
+   				<img class="mb-4 logo-small" src="../img/meshdep-logo.png" alt="">
+   				<h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+   				
+          <label for="loginInputEmail" class="sr-only">Email address</label>
+      		<input type="email" id="loginInputEmail" class="form-control" placeholder="Email address" required autofocus>
+     		  
+          <label for="loginInputPassword" class="sr-only">Password</label>
+      		<input type="password" id="loginInputPassword" class="form-control" placeholder="Password" required>
+      		
+          <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      		<a href="#" id="regButton"> Don't have an account yet? Register here.</a>
+   			</form>
+
+        <div class="form-disclamer fadeIn" id ="disclamerDiv" style="display: none;">
+          <img class="mb-4 logo-small" src="../img/meshdep-logo.png" alt="">
+          <h1 class="h3 mb-3 font-weight-normal">Before we continue...</h1>
+          <p>Meshdep is a student project which does not ensure professional level security while using your data. Your data may also be intercepted as we can not ensure SSL/TLS. We advise you do not pick passwords you use elsewhere, and only use this for testing purposes of our implementation of a distributed file storage network.</p>
+          <button class="btn btn-secondary" id="disclamerDecline">Damn, take me out of here!</button>
+          <button class="btn btn-primary" id="disclamerAccept">Okay, I will proceed at my own risk...</button>
+        </div>
+
+        <form class="form-signin img-fluid animated fadeIn delay-1s" id="regForm" style="display: none;">
+          <img class="mb-4 logo-small" src="../img/meshdep-logo.png" alt="">
+          <h1 class="h3 mb-3 font-weight-normal">Registration</h1>
+         
+          <label for="regInputEmail" class="sr-only">Email address</label>
+          <input type="email" id="regInputEmail" class="form-control" placeholder="Email address" required autofocus>
+          
+          <label for="regInputPassword" class="sr-only">Password</label>
+          <input type="password" id="regInputPassword" class="form-control" placeholder="Password" required>
+
+          <label for="regInputConfPassword" class="sr-only">Confirm Password</label>
+          <input type="cpassword" id="regInputConfPassword" class="form-control" placeholder="Confirm Password" required>
+          
+          <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+          <a href="#" id="logInButton">Already have an account? Log in here.</a>
+        </form>
+  		</div>
+	</div>
+<script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="../js/index.js"></script>
+</body>
+</head>
+</html>
