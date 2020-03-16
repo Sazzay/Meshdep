@@ -5,7 +5,6 @@ from includes import serverfilehandler
 from includes import database
 from includes import nodeserver
 from includes import utils
-from includes import httpserver
 import time
 import os
 import flask
@@ -24,7 +23,11 @@ def index():
 
 @app.route('/api/register', methods=['POST'])
 def register():
-	return "Test"
+	# should try to add the values provided
+	# in the request (that is username and
+	# password) into the database using 
+	# db.queryUserAdd
+	pass
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -33,7 +36,7 @@ def login():
 	password = data['pass']
 
 	if (db.queryGatherUser(user, password)):
-		return render_template("test.html")
+		return "Valid username and password"
 	else:
 		return "Invalid username or password"
 
