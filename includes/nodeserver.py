@@ -65,7 +65,7 @@ class NodeHandler(threading.Thread):
 
 		space = {k: v for k, v in sorted(space.items(), key=lambda item: item[1])}
 
-		print("[SERVER] Found the most suitable node as %s" % list(space.keys())[len(space)-1])
+		#print("[SERVER] Found the most suitable node as %s" % list(space.keys())[len(space)-1])
 
 		for i in range(len(self.THREADS)):
 			if list(space.keys())[len(space)-1] == self.THREADS[i].MID:

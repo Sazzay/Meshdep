@@ -53,7 +53,7 @@ def rm_folder(user, path):
 		try:
 			shutil.rmtree('Data' + '/' + user + '/' + path)
 		except Exception as ex:
-			print("[NODE] User %s got exception %s while trying to remove folder" (user, ex))
+			print("[NODE] User %s got exception %s while trying to remove folder" % (user, ex))
 	else:
 		print("[NODE] User %s tried to remove a folder that does not exist." % user)
 		raise FileNotFoundError

@@ -12,7 +12,7 @@ print("[NODE] Node starting...")
 HOST = "127.0.0.1"
 PORT = "6220"
 nc = nodeclient.NodeClient(HOST, PORT)
-db = database.Database("81.170.171.18", "8159", "johan", "oq29pqxe", "meshdep")
+db = database.Database("81.170.171.18", "8159", "root", "lol123", "meshdep")
 
 #print(db.queryNodesWithFolder("ServerRobban", "/Mina Coola Bilar"))
 
