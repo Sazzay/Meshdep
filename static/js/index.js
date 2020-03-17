@@ -29,9 +29,9 @@ $(function() {
 			type: 'POST',
 			url: '/api/register',
 			contentType: "application/json; charset=utf-8",
-			data: JSON.stringify({user: username, pass: password}),
+			data: JSON.stringify({'user': username, 'pass': password}),
 			success: function(result) {
-				alert("Test")
+				alert(JSON.parse(result))
 			}
 		})
 	})
@@ -41,12 +41,18 @@ $(function() {
 		password = $("#loginInputPassword").val()
 
 		$.ajax({
+			async: false,
 			type: 'POST',
 			url: '/api/login',
 			contentType: "application/json; charset=utf-8",
-			data: JSON.stringify({user: username, pass: password}),
+			data: JSON.stringify({'user': username, 'pass': password}),
 			success: function(result) {
-				alert(result)
+				if (result == "AUTH") {
+					window.location.href = '/'
+				}
+				if (result == "NAUTH") {
+					alert("Invalid username or password")
+				}
 			}
 		})
 	})
