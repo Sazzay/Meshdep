@@ -12,14 +12,19 @@ import json
 
 print("[SERVER] Starting the Database, NodeServer and Flask...")
 
-ACTIVE = True
 db = database.Database("81.170.171.18", "8159", "johan", "oq29pqxe", "meshdep")
 ns = nodeserver.NodeServer("127.0.0.1", "6220", 3)
+
 app = flask.Flask("meshdep", template_folder="html")
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+
 		
 @app.route('/')
 def index():
-	return flask.render_template("index.html")
+	if 'username' in flask.session:
+		return flask.render_template("panel.html")
+	else:
+		return flask.render_template("index.html")
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -36,11 +41,11 @@ def login():
 	password = data['pass']
 
 	if (db.queryGatherUser(user, password)):
-		return "Valid username and password"
-	else:
-		return "Invalid username or password"
+		flask.session['username'] = user
+		return "AUTH"
 
-	return "Test"
+	return "NAUTH"
+
 
 
 app.run(debug=True)

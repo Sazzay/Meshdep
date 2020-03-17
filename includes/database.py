@@ -180,17 +180,15 @@ class Database:
 	def queryGatherUser(self, userName, password):
 		cursor = self.CONN.cursor()
 
-		query = ("SELECT EXISTS(SELECT * FROM users WHERE"
-		"(UserName, Password)="
-		"(%s, %s))")
+		query = ("SELECT * FROM users WHERE UserName = %s AND Password = %s")
 		query_fields = (userName, password)
 
 		cursor.execute(query, query_fields)
-		hitTest = cursor.fetchone()
+		hit = cursor.fetchone()
 
 		cursor.close()
 
-		return hitTest[0]
+		return hit
 
-	def test(self):
-		return True
+
+
