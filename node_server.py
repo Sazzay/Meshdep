@@ -13,50 +13,58 @@ if not os.path.exists('jobs'):
 
 while True:
 	for file in os.listdir('jobs'):
-		if file.endswith(".mjob") and len(ns.NHT.THREADS) != 0:
-			print("[SERVER] Found a new job.. Extracting data and proceeding with processing...")
+		try:
+			if file.endswith(".mjob") and len(ns.NHT.THREADS) != 0:
+				print("[SERVER] Found a new job.. Extracting data and proceeding with processing...")
 
-			data = None
+				data = None
 
-			with open("jobs/%s" % file, "r") as f:
-				data = json.loads(f.readline())
+				with open("jobs/%s" % file, "r") as f:
+					data = json.loads(f.readline())
 
-			if data and data['Type'] == "Upload":
-				with open("tmp/%s_%s" % (data['User'], data['Filename']), "rb") as f:
-					node = ns.NHT.find_node(60)
-					node_ip = node.fetch_ip()
-					node_port = node.fetch_transfer(
-						"RECV", 
-						data['Filename'], 
-						data['Folder'], 
-						data['User'], 
-						int(data['Size']), 
-						data['Overwrite']
-						)
+				if data and data['Type'] == "Upload":
+					with open("tmp/%s_%s" % (data['User'], data['Filename']), "rb") as f:
+						node = ns.NHT.find_node(60)
+						node_ip = node.fetch_ip()
+						node_port = node.fetch_transfer(
+							"RECV", 
+							data['Filename'], 
+							data['Folder'], 
+							data['User'], 
+							int(data['Size']), 
+							data['Overwrite']
+							)
 
-					fh = serverfilehandler.ServerFileHandler(
-						"SEND", 
-						node_ip, 
-						node_port, 
-						data['Filename'], 
-						data['Folder'], 
-						data['User'], 
-						int(data['Size']), 
-						data['Overwrite']
-						)
-					fh.start()
+						fh = serverfilehandler.ServerFileHandler(
+							"SEND", 
+							node_ip, 
+							node_port, 
+							data['Filename'], 
+							data['Folder'], 
+							data['User'], 
+							int(data['Size']), 
+							data['Overwrite']
+							)
+						fh.start()
 
-					file_data = f.read(32768)
-
-					while file_data:
-						fh.enqueue(file_data)
 						file_data = f.read(32768)
 
-			if data and data['Type'] == "Download":
-				pass
+						while file_data:
+							fh.enqueue(file_data)
+							file_data = f.read(32768)
 
-			print("[SERVER] Job completed, removing the job from jobs.")
-			os.remove("jobs/%s" % file)
+					os.remove("tmp/%s_%s" % (data['User'], data['Filename']))
+
+				if data and data['Type'] == "Download":
+					pass
+
+				if data and data['Type'] == "Delete":
+					pass
+
+				print("[SERVER] Job completed, removing the job from jobs.")
+				os.remove("jobs/%s" % file)
+		except:
+			pass
 
 
 

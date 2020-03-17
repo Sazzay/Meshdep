@@ -190,5 +190,27 @@ class Database:
 
 		return hit
 
+	def queryGatherFiles(self, userName):
+		userId = self.queryUserId(userName)
+
+		if userId == None:
+			print("[DB] Invalid userName provided to queryFileAddition...")
+			raise ValueError
+
+		cursor = self.CONN.cursor(buffered=True)
+
+		query = ("SELECT * FROM files WHERE UserId = %s")
+
+		cursor.execute(query, (userId,))
+		self.CONN.commit()
+
+		data = cursor.fetchall()
+
+		cursor.close()
+
+		print(len(data))
+
+		return data
+
 
 

@@ -55,7 +55,14 @@ def upload():
 			return json.dumps("Success")
 
 
-	return json.dumps("Failed")
+	return json.dumps("Failed, exceeded the maximum amount of queued jobs")
+
+@app.route('/api/fetch_files', methods=['GET'])
+def fetch_files():
+	user = flask.session['username']
+	data = db.queryGatherFiles(user)
+	
+	return json.dumps(data)
 
 
 
