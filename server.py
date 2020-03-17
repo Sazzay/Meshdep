@@ -5,24 +5,58 @@ from includes import serverfilehandler
 from includes import database
 from includes import nodeserver
 from includes import utils
-#from includes import httpserver
 import time
 import os
+import flask
+import json
 
-print("[SERVER] Starting the Database & NodeServer...")
+print("[SERVER] Starting the Database, NodeServer and Flask...")
 
-ACTIVE = True
-#db = database.Database("81.170.171.18", "8159", "johan", "oq29pqxe", "meshdep")
+db = database.Database("81.170.171.18", "8159", "johan", "oq29pqxe", "meshdep")
 ns = nodeserver.NodeServer("127.0.0.1", "6220", 3)
-#hs = httpserver.RequestHandler(db)
+
+app = flask.Flask("meshdep", template_folder="html")
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+
+		
+@app.route('/')
+def index():
+	if 'username' in flask.session:
+		return flask.render_template("panel.html")
+	else:
+		return flask.render_template("index.html")
+
+@app.route('/api/register', methods=['POST'])
+def register():
+	# should try to add the values provided
+	# in the request (that is username and
+	# password) into the database using 
+	# db.queryUserAdd
+	pass
+
+@app.route('/api/login', methods=['POST'])
+def login():
+	data = json.loads(flask.request.data)
+	user = data['user']
+	password = data['pass']
+
+	if (db.queryGatherUser(user, password)):
+		flask.session['username'] = user
+		return "AUTH"
+
+	return "NAUTH"
 
 
-test = ns.NHT.find_node(60)
+
+app.run(debug=True)
+del db
+del ns
+        
+
+
+
+#test = ns.NHT.find_node(60)
 #test.send_del_req("ServerRobban", "Mina Coola Bilar", "volvo740.jpg")
-
-time.sleep(5)
-
-
 
 #test = ns.NHT.find_node_by_mid("36D56B8A-AB72-AFB5-46C4-049226D12DCD")
 #print(test)
@@ -70,13 +104,3 @@ time.sleep(5)
 #		f.write(fs.dequeue())
 #		tbytes += 32768
 ##########
-
-while ACTIVE:
-    try:
-        time.sleep(0.1)
-    except KeyboardInterrupt:
-        print("[INTERRUPT] KeyboardInterrupt detected, halting DB and Server.")
-        del db
-        del ns
-        ACTIVE = False
-        
