@@ -74,12 +74,11 @@ class NodeFileHandler(threading.Thread):
 				tbytes += 32768
 
 			print("Successfully received file %s" % repr(fa))
-			db.queryFileAddition(self.USER, utils.fetch_mid(), self.PATH, self.LENGTH, self.FILENAME)
+			self.DB.queryFileAddition(self.USER, utils.fetch_mid(), self.PATH, self.LENGTH, self.FILENAME)
 		except ConnectionResetError:
 			print("[NODE] NodeFileReceiver socket closed.")
 
 		fa.close()
-		del db
 
 	def exec_send(self):
 		try:
