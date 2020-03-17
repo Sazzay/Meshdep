@@ -1,29 +1,103 @@
 <!doctype html>
 <html>
 	<head>
-		<title>User Data Table</title>
 		<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css">
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+		<link rel= "stylesheet" type= "text/css" href= "{{url_for('static', filename='styles/meshdep.css')}}">
 	</head>
-	<body>
-		<div class="container">
-			<h4 class="text-center">"Username"'s Data table</h4>
-			<table data-toggle="table" data-url="userdata.json" 
-			data-search="true" data-pagination="true" data-show-columns="true">
-				<thead>
-					<tr>
-						<th data-field="Filename" data-sortable="true">Filename</th>
-						<th data-field="Path" data-sortable="true">Path</th>
-						<th data-field="Size" data-sortable="true">Size</th>
-						<th data-field="Lastmodified" data-sortable="true">Last modified</th>
-						<th data-field="Node" data-sortable="true">Node</th>
-					</tr>
-				</thead>
-			</table>
+	<body class="body-panel">
+		<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+      		<a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Meshdep</a>
+      		<ul class="navbar-nav px-3">
+        		<li class="nav-item text-nowrap">
+          			<a class="nav-link" href="#">Sign out</a>
+        		</li>
+      		</ul>
+    	</nav>
+
+		<div class="container" style="max-width: 1300px">
+			<div class="row" style="padding-top: 20px">
+				<h2>Files</h2>
+				<input id="uploadFile" type="image" alt="Upload" class="ml-auto mr-3" style="max-width: 36px; max-height:36px" src="/static/img/meshdep-upload-file.png" alt="">
+			</div>
+
+			<div class="row" style="padding-top: 20px">
+				<div class="card mt-2 ml-1 mr-1" style="width: 200px;">
+	  				<div class="card-body" style="padding-top: 10px; margin-left: 5px margin">
+	    				<h5 class="card-title">Filename</h5>
+	    				<p>Stored on node -</p>
+	    				<img class="logo-vsmall float-left" style="max-width: 32px; max-height:32px" src="/static/img/meshdep-del.png" alt="">
+	    				<img class="logo-vsmall float-right" style="max-width: 32px; max-height:32px" src="/static/img/meshdep-download.png" alt="">
+	  				</div>
+				</div>
+
+				<div class="card mt-2 ml-1 mr-1" style="width: 200px;">
+	  				<div class="card-body" style="padding-top: 10px; margin-left: 5px margin">
+	    				<img class="logo-vsmall float-left" style="max-width: 32px; max-height:32px" src="/static/img/meshdep-del.png" alt="">
+	    				<img class="logo-vsmall float-right" style="max-width: 32px; max-height:32px" src="/static/img/meshdep-download.png" alt="">
+	  				</div>
+				</div>
+
+				<div class="card mt-2 ml-1 mr-1" style="width: 200px;">
+	  				<div class="card-body" style="padding-top: 10px; margin-left: 5px margin">
+	    				<h5 class="card-title">Filename</h5>
+	    				<img class="logo-vsmall float-left" style="max-width: 32px; max-height:32px" src="/static/img/meshdep-del.png" alt="">
+	    				<img class="logo-vsmall float-right" style="max-width: 32px; max-height:32px" src="/static/img/meshdep-download.png" alt="">
+	  				</div>
+				</div>
+
+				<div class="card mt-2 ml-1 mr-1" style="width: 200px;">
+	  				<div class="card-body" style="padding-top: 10px; margin-left: 5px margin">
+	    				<h5 class="card-title">Filename</h5>
+	    				<img class="logo-vsmall float-left" style="max-width: 32px; max-height:32px" src="/static/img/meshdep-del.png" alt="">
+	    				<img class="logo-vsmall float-right" style="max-width: 32px; max-height:32px" src="/static/img/meshdep-download.png" alt="">
+	  				</div>
+				</div>
+
+				<div class="card mt-2 ml-1 mr-1" style="width: 200px;">
+	  				<div class="card-body" style="padding-top: 10px; margin-left: 5px margin">
+	    				<h5 class="card-title">Filename</h5>
+	    				<img class="logo-vsmall float-left" style="max-width: 32px; max-height:32px" src="/static/img/meshdep-del.png" alt="">
+	    				<img class="logo-vsmall float-right" style="max-width: 32px; max-height:32px" src="/static/img/meshdep-download.png" alt="">
+	  				</div>
+				</div>
+
+				<div class="card mt-2 ml-1 mr-1" style="width: 200px;">
+	  				<div class="card-body" style="padding-top: 10px; margin-left: 5px margin">
+	    				<h5 class="card-title">Filename</h5>
+	    				<img class="logo-vsmall float-left" style="max-width: 32px; max-height:32px" src="/static/img/meshdep-del.png" alt="">
+	    				<img class="logo-vsmall float-right" style="max-width: 32px; max-height:32px" src="/static/img/meshdep-download.png" alt="">
+	  				</div>
+				</div>
+
+				<div class="card mt-2 ml-1 mr-1" style="width: 200px;">
+	  				<div class="card-body" style="padding-top: 10px; margin-left: 5px margin">
+	    				<h5 class="card-title">Filename</h5>
+	    				<img class="logo-vsmall float-left" style="max-width: 32px; max-height:32px" src="/static/img/meshdep-del.png" alt="">
+	    				<img class="logo-vsmall float-right" style="max-width: 32px; max-height:32px" src="/static/img/meshdep-download.png" alt="">
+	  				</div>
+				</div>
+
+				<div class="card mt-2 ml-1 mr-1" style="width: 200px;">
+	  				<div class="card-body" style="padding-top: 10px; margin-left: 5px margin">
+	    				<h5 class="card-title">Filename</h5>
+	    				<img class="logo-vsmall float-left" style="max-width: 32px; max-height:32px" src="/static/img/meshdep-del.png" alt="">
+	    				<img class="logo-vsmall float-right" style="max-width: 32px; max-height:32px" src="/static/img/meshdep-download.png" alt="">
+	  				</div>
+				</div>
+
+				
+			</div>
 		</div>
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 		<script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+		<script src="{{url_for('static', filename='js/panel.js')}}"></script>
+		<footer class="footer bg-dark" style="position: absolute; bottom: 0; width: 100%">
+      		<div class="container text-center">
+        		<span class="text-muted">Meshdep student project, reach us on our <a href="https://discord.gg/jTRCrnf">discord</a>.</span>
+      		</div>
+    	</footer>
 	</body>
 </html>
