@@ -1,6 +1,50 @@
 $(function() {
+	// Raw JS
+	function isIdValid(id) {
+		if($("#" + id).length == 0) {
+			return false
+		} else {
+			return true
+		}
+	}
+
+	function fetchAllDivIds(parentDiv) {
+		return $(parentDiv).children("div[id]")
+	}
+
+	function fetchFileData(id, fileInput) {
+		for (a of fileInput) {
+			if (parseInt(a[0]) == parseInt(id)) {
+				return a
+			}
+		}
+
+		return []
+	}
+
+	const sleep = (milliseconds) => {
+  		return new Promise(resolve => setTimeout(resolve, milliseconds))
+	}
+
 	// JQuery
 	let files = []
+	let faded = false
+	let fadedText = false
+
+	// Initial fade in of loading
+	$("#loadingDiv").animate({opacity: 1.0}, 800);
+
+	sleep(1000).then(() => {
+		$("#loadingDiv").animate({opacity: 0.0}, 800, function() {
+			if (files.length == 0 && $("#noFilesDiv").css("opacity") == 0.0) {
+				$("#noFilesDiv").animate({opacity: 1.0}, 800)
+			}
+
+			if (files.length > 0) {
+				faded = true
+			}
+		})
+	})
 
 	$("#uploadFileButton").hover(function() {
         $(this).animate({opacity: 0.7}, 500);
@@ -46,14 +90,21 @@ $(function() {
        		}
    		});
 
+   		if (files.length != 0 && $("#noFilesDiv").css("opacity") == 1.0) {
+   			$("#noFilesDiv").animate({opacity: 0.0}, 800, function() {
+   				faded = true
+   			});
+   		}
+
 		for (a of files) {
-			if (!isIdValid(a[0])) {
+			if (!isIdValid(a[0]) && faded) {
 				$("#fileContainerRow").append(
 					"<div id=" + a[0] + " class='card mt-2 ml-1 mr-1' style='width: 200px; height: 250px; display: none;'>"+
 						"<div class='card-body' style='padding-top: 10px; margin-left: 5px margin'>"+
 							"<h5 class='card-title' style='font-size: 14px'>" + a[6] + "</h5>"+
-	    					"<p style='font-size: 10px'><b>Stored on node</b> - " + a[2] + "</p>"+
-	    					"<p style='font-size: 10px'><b>Last Modified</b> - " + a[3] + "</p>"+
+	    					"<p style='font-size: 10px'><b>Stored on node: </b>" + a[2] + "</p>"+
+	    					"<p style='font-size: 10px'><b>Last Modified: </b>" + a[3] + "</p>"+
+	    					"<p style='font-size: 10px'><b>Filesize: </b> " + a[5] + "</p>"+
 	    					"<input id=delBtn" + a[0] + " class='logo-vsmall' type='image' style='max-width: 32px; max-height:32px; position: absolute; bottom: 5px; left: 10px' src='/static/img/meshdep-del.png' alt='Delete'>"+
 	    					"<input id=addBtn" + a[0] + " class='logo-vsmall' type='image' style='max-width: 32px; max-height:32px; position: absolute; bottom: 5px; right: 10px' src='/static/img/meshdep-download.png' alt='Download'>"+
 	  					"</div>"+
@@ -63,17 +114,25 @@ $(function() {
 				$("#" + a[0]).animate({opacity: 1.0}, 1000);
 
 				$("#delBtn" + a[0]).on('click', function() {
-					console.log(this)
-					let id = $(this).attr('id')
+					let file = fetchFileData($(this).attr('id').replace(/\D/g,''), files)
 
-					// del button
+					$.ajax({ 
+						type: 'POST',
+						url: '/api/delete',
+						contentType: "application/json; charset=utf-8",
+						data: JSON.stringify({'fileName': file[6], 'node': file[2]})
+					})
+
 				})
 
 				$("#addBtn" + a[0]).on('click', function() {
-					console.log(this)
-					let id = $(this).attr('id')
+					let file = fetchFileData($(this).attr('id').replace(/\D/g,''), files)
+					// JSON.stringify({'fileName': file[6], 'node': file[2], 'size': file[5]}),
 
-					// add button
+					$.fileDownload('/api/download', {
+						httpMethod: 'POST',
+						data: {'fileName': file[6], 'node': file[2], 'size': file[5]},
+					})
 				})
 			}
 
@@ -90,18 +149,4 @@ $(function() {
 		// figure out method to delete
    		
 	}, 1000 );
-
-
-	// Raw JS
-	function isIdValid(id) {
-		if($("#" + id).length == 0) {
-			return false
-		} else {
-			return true
-		}
-	}
-
-	function fetchAllDivIds(parentDiv) {
-		return $(parentDiv).children("div[id]")
-	}
 })
