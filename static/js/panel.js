@@ -1,6 +1,40 @@
 $(function() {
+	// Raw JS
+	function isIdValid(id) {
+		if($("#" + id).length == 0) {
+			return false
+		} else {
+			return true
+		}
+	}
+
+	function fetchAllDivIds(parentDiv) {
+		return $(parentDiv).children("div[id]")
+	}
+
+	const sleep = (milliseconds) => {
+  		return new Promise(resolve => setTimeout(resolve, milliseconds))
+	}
+
 	// JQuery
 	let files = []
+	let faded = false
+	let fadedText = false
+
+	// Initial fade in of loading
+	$("#loadingDiv").animate({opacity: 1.0}, 800);
+
+	sleep(1000).then(() => {
+		$("#loadingDiv").animate({opacity: 0.0}, 800, function() {
+			if (files.length == 0 && $("#noFilesDiv").css("opacity") == 0.0) {
+				$("#noFilesDiv").animate({opacity: 1.0}, 800)
+			}
+
+			if (files.length > 0) {
+				faded = true
+			}
+		})
+	})
 
 	$("#uploadFileButton").hover(function() {
         $(this).animate({opacity: 0.7}, 500);
@@ -46,8 +80,14 @@ $(function() {
        		}
    		});
 
+   		if (files.length != 0 && $("#noFilesDiv").css("opacity") == 1.0) {
+   			$("#noFilesDiv").animate({opacity: 0.0}, 800, function() {
+   				faded = true
+   			});
+   		}
+
 		for (a of files) {
-			if (!isIdValid(a[0])) {
+			if (!isIdValid(a[0]) && faded) {
 				$("#fileContainerRow").append(
 					"<div id=" + a[0] + " class='card mt-2 ml-1 mr-1' style='width: 200px; height: 250px; display: none;'>"+
 						"<div class='card-body' style='padding-top: 10px; margin-left: 5px margin'>"+
@@ -66,14 +106,14 @@ $(function() {
 					console.log(this)
 					let id = $(this).attr('id')
 
-					// del button
+					// del button, send delete request
 				})
 
 				$("#addBtn" + a[0]).on('click', function() {
 					console.log(this)
 					let id = $(this).attr('id')
 
-					// add button
+					// add button, send download request
 				})
 			}
 
@@ -90,18 +130,4 @@ $(function() {
 		// figure out method to delete
    		
 	}, 1000 );
-
-
-	// Raw JS
-	function isIdValid(id) {
-		if($("#" + id).length == 0) {
-			return false
-		} else {
-			return true
-		}
-	}
-
-	function fetchAllDivIds(parentDiv) {
-		return $(parentDiv).children("div[id]")
-	}
 })

@@ -7,6 +7,11 @@ db = database.Database("81.170.171.18", "8159", "johan", "oq29pqxe", "meshdep")
 
 app = flask.Flask("meshdep", template_folder="html")
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+
+@app.route('/favicon.ico')
+def favicon():
+    return flask.send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 		
 @app.route('/')
 def index():
@@ -61,7 +66,7 @@ def upload():
 def fetch_files():
 	user = flask.session['username']
 	data = db.queryGatherFiles(user)
-	
+
 	return json.dumps(data)
 
 

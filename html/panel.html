@@ -23,7 +23,7 @@
 			</div>
 
 			<div id="fileContainerRow" class="row" style="padding-top: 20px">
-
+				
 			</div>
 		</div>
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -34,6 +34,15 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.8.0/js/jquery.iframe-transport.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.8.0/js/jquery.fileupload.min.js"></script>
 		<script src="{{url_for('static', filename='js/panel.js')}}"></script>
+
+		<div id="loadingDiv" class="row justify-content-md-center" style="opacity: 0.0">
+			<img src="/static/img/meshdep-loading.gif" style="max-width: 256px; max-height: 256px";>
+		</div>
+
+		<div id="noFilesDiv" class="row justify-content-md-center" style="opacity: 0.0">
+			<p>You have no files yet... Click the add button to your top right to upload a file!</p>
+		</div>
+
 		<footer class="footer bg-dark" style="position: absolute; bottom: 0; width: 100%">
       		<div class="container text-center">
         		<span class="text-muted"><b>Meshdep</b> student project, reach us through <b>markus.larsson@student.hv.se</b></span>
