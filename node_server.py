@@ -11,6 +11,9 @@ ns = nodeserver.NodeServer("127.0.0.1", "6220", 3)
 if not os.path.exists('jobs'):
 	os.makedirs('jobs')
 
+if not os.path.exists('tmp'):
+	os.makedirs('tmp')
+
 while True:
 	for file in os.listdir('jobs'):
 		try:
@@ -21,6 +24,8 @@ while True:
 
 				with open("jobs/%s" % file, "r") as f:
 					data = json.loads(f.readline())
+
+				os.remove("jobs/%s" % file)
 
 				if data and data['Type'] == "Upload":
 					with open("tmp/%s_%s" % (data['User'], data['Filename']), "rb") as f:
@@ -56,14 +61,46 @@ while True:
 					os.remove("tmp/%s_%s" % (data['User'], data['Filename']))
 
 				if data and data['Type'] == "Download":
-					pass
+					tbytes = 0
+					node = ns.NHT.find_node_by_mid(data['Node'])
+					node_ip = node.fetch_ip()
+					node_port = node.fetch_transfer(
+						"SEND",
+						data['Filename'], 
+						data['Folder'], 
+						data['User'], 
+						int(data['Size']), 
+						data['Overwrite']
+						)
+
+					fh = serverfilehandler.ServerFileHandler(
+							"RECV", 
+							node_ip, 
+							node_port, 
+							data['Filename'], 
+							data['Folder'], 
+							data['User'], 
+							int(data['Size']), 
+							data['Overwrite']
+							)
+					fh.start()
+
+					with open("tmp/%s_%s" % (data['User'], data['Filename']), "wb") as f:
+						while tbytes < int(data['Size']):
+							f.write(fh.dequeue())
+							tbytes += 32768
 
 				if data and data['Type'] == "Delete":
 					node = ns.NHT.find_node_by_mid(data['Node'])
 					node.send_del_req(data['User'], data['Folder'], data['Filename'])
 
-				print("[SERVER] Job completed, removing the job from jobs.")
-				os.remove("jobs/%s" % file)
+				if data and data['Type'] == "DeleteTmp":
+					while True:
+						try:
+							os.remove("tmp/" + data['User'] + "_" + data['Filename'])
+							break
+						except:
+							pass
 		except:
 			pass
 

@@ -127,7 +127,12 @@ $(function() {
 
 				$("#addBtn" + a[0]).on('click', function() {
 					let file = fetchFileData($(this).attr('id').replace(/\D/g,''), files)
-					console.log(file)
+					// JSON.stringify({'fileName': file[6], 'node': file[2], 'size': file[5]}),
+
+					$.fileDownload('/api/download', {
+						httpMethod: 'POST',
+						data: {'fileName': file[6], 'node': file[2], 'size': file[5]},
+					})
 				})
 			}
 

@@ -1,7 +1,9 @@
 from includes import database
+import threading
 import os
 import flask
 import json
+import time
 
 db = database.Database("81.170.171.18", "8159", "johan", "oq29pqxe", "meshdep")
 
@@ -40,6 +42,13 @@ def login():
 
 	return "NAUTH"
 
+@app.route('/api/fetch_files', methods=['GET'])
+def fetch_files():
+	user = flask.session['username']
+	data = db.queryGatherFiles(user)
+
+	return json.dumps(data)
+
 @app.route('/api/upload', methods=['POST'])
 def upload():
 	user = flask.session['username']
@@ -62,13 +71,6 @@ def upload():
 
 	return json.dumps("Failed, exceeded the maximum amount of queued jobs")
 
-@app.route('/api/fetch_files', methods=['GET'])
-def fetch_files():
-	user = flask.session['username']
-	data = db.queryGatherFiles(user)
-
-	return json.dumps(data)
-
 @app.route('/api/delete', methods=['POST'])
 def delete():
 	post = json.loads(flask.request.data)
@@ -85,9 +87,52 @@ def delete():
 		if not os.path.isfile('jobs/%s.mjob' % str(i)):
 			f = open('jobs/%s.mjob' % str(i), "w")
 			f.write(data)
+			f.close()
 			return json.dumps("Success")
 
 	return json.dumps("Failed, exceeded the maximum amount of queued jobs")
+
+@app.route('/api/download', methods=['POST'])
+def download():
+	post = flask.request.form
+	user = flask.session['username']
+	fileName = post['fileName']
+	node = post['node']
+	size = post['size']
+	overwrite = "True"
+	timeout = 0
+
+	if not os.path.exists('jobs'):
+		os.makedirs('jobs')
+
+	data = json.dumps({"Type": "Download", "Filename": fileName, "Folder": "", "User": user, "Node": node, "Size": size, "Overwrite": overwrite})
+	
+	for i in range(2000):
+		if not os.path.isfile('jobs/%s.mjob' % str(i)):
+			f = open('jobs/%s.mjob' % str(i), "w")
+			f.write(data)
+			f.close()
+			break
+
+	while True:
+		if os.path.isfile("tmp/" + user + "_" + fileName):
+			if os.path.getsize("tmp/" + user + "_" + fileName) >= int(size):
+				break
+
+	
+	data = json.dumps({"Type": "DeleteTmp", "Filename": fileName, "User": user})
+
+	for i in range(2000):
+		if not os.path.isfile('jobs/%s.mjob' % str(i)):
+			f = open('jobs/%s.mjob' % str(i), "w")
+			f.write(data)
+			f.close()
+			break
+
+	return flask.send_file("tmp/" + user + "_" + fileName, as_attachment=True, attachment_filename=fileName)
+
+
+
 
 
 
