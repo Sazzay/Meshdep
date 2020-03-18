@@ -53,7 +53,7 @@ def upload():
 
 	data = json.dumps({"Type": "Upload", "Filename": file.filename, "Folder": "", "User": user, "Size": size, "Overwrite": overwrite})
 
-	for i in range(500):
+	for i in range(2000):
 		if not os.path.isfile('jobs/%s.mjob' % str(i)):
 			f = open('jobs/%s.mjob' % str(i), "w")
 			f.write(data)
@@ -68,6 +68,27 @@ def fetch_files():
 	data = db.queryGatherFiles(user)
 
 	return json.dumps(data)
+
+@app.route('/api/delete', methods=['POST'])
+def delete():
+	post = json.loads(flask.request.data)
+	user = flask.session['username']
+	fileName = post['fileName']
+	node = post['node']
+
+	if not os.path.exists('jobs'):
+		os.makedirs('jobs')
+
+	data = json.dumps({"Type": "Delete", "Filename": fileName, "Folder": "", "User": user, "Node": node})
+
+	for i in range(2000):
+		if not os.path.isfile('jobs/%s.mjob' % str(i)):
+			f = open('jobs/%s.mjob' % str(i), "w")
+			f.write(data)
+			return json.dumps("Success")
+
+	return json.dumps("Failed, exceeded the maximum amount of queued jobs")
+
 
 
 

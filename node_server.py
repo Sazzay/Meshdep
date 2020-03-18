@@ -59,7 +59,8 @@ while True:
 					pass
 
 				if data and data['Type'] == "Delete":
-					pass
+					node = ns.NHT.find_node_by_mid(data['Node'])
+					node.send_del_req(data['User'], data['Folder'], data['Filename'])
 
 				print("[SERVER] Job completed, removing the job from jobs.")
 				os.remove("jobs/%s" % file)
