@@ -25,7 +25,7 @@ class NodeClient:
 
 	# send functions #
 	def send_handshake(self):
-		mid = utils.fetch_mid()
+		mid = str(utils.fetch_mid()).rstrip()
 		self.SOCK.send((
 			packets.fetchSmallPacket(
 			packets.Packets.HANDSHAKE, 

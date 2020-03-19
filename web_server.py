@@ -77,8 +77,8 @@ def upload():
 def delete():
 	post = json.loads(flask.request.data)
 	user = flask.session['username']
-	fileName = post['fileName']
-	node = post['node']
+	fileName = str(post['fileName']).rstrip()
+	node = str(post['node']).rstrip()
 
 	if not os.path.exists('jobs'):
 		os.makedirs('jobs')
@@ -98,8 +98,8 @@ def delete():
 def download():
 	post = flask.request.form
 	user = flask.session['username']
-	fileName = post['fileName']
-	node = post['node']
+	fileName = str(post['fileName']).rstrip()
+	node = str(post['node']).rstrip()
 	size = post['size']
 	overwrite = "True"
 	timeout = 0
