@@ -71,15 +71,15 @@ class NodeFileHandler(threading.Thread):
 			while tbytes < self.LENGTH:
 				recv = self.CLIENT.recv(32768)
 				fa.write(recv)
-				tbytes += 32768
+				tbytes += len(recv)
 
 			print("Successfully received file %s" % repr(fa))
-			db.queryFileAddition(self.USER, utils.fetch_mid(), self.PATH, self.LENGTH, self.FILENAME)
+			self.DB.queryFileAddition(self.USER, utils.fetch_mid(), self.PATH, self.LENGTH, self.FILENAME)
 		except ConnectionResetError:
 			print("[NODE] NodeFileReceiver socket closed.")
 
+		self.SOCK.close()
 		fa.close()
-		del db
 
 	def exec_send(self):
 		try:
@@ -95,3 +95,5 @@ class NodeFileHandler(threading.Thread):
 		except Exception as ex:
 			print("[NODE] Could not complete transfer, exception: %s" % ex)
 			return
+		
+		self.SOCK.close()
