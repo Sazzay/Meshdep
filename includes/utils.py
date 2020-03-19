@@ -16,7 +16,7 @@ def get_config_val(filename, key):
 				return lines
 				break
 	except:
-		print("No configuration file was found, creating sample configuration file...")
+		log("utils", "No configuration file was found, creating sample configuration file...", True)
 		file = open('config.txt', 'w+')
 		file.write("DB_IP = 127.0.0.1\nDB_PORT = 8159\nDB_USER = root\nDB_PASS = admin\nDB_DATABASE = meshdep\n\nSERVER_IP = 127.0.0.1\nSERVER_PORT = 6220\nSERVER_MAX_NODES = 3\n\nNODE_TRANSFER_STARTPORT = 7430\n")
 		return "Configuration file, config.txt, has been created. Change the default values to accurate values. "
@@ -41,10 +41,10 @@ def fetch_mid():
 		try:
 			return os.popen("cat /etc/machine-id").read()
 		except:
-			print("[NODE] There was an error trying to fetch /etc/machine-id.")
+			log("utils", "[NODE] There was an error trying to fetch /etc/machine-id.", True)
 
 	if platform.system() == "Windows":
 		try:
 			return subprocess.check_output('wmic csproduct get uuid').decode().split('\n')[1].strip()
 		except:
-			print("[NODE] Subprocess WMIC failed to fetch /etc/machine-id UUID equilivent.")
+			log("utils", "[NODE] Subprocess WMIC failed to fetch /etc/machine-id UUID equilivent.", True)
