@@ -137,5 +137,5 @@ def download():
 
 	return response
 
-app.run()
+app.run(host="192.168.1.112")
 del db
