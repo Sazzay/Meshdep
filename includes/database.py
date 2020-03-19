@@ -1,4 +1,5 @@
 import mysql.connector
+import os
 from datetime import datetime
 from includes import utils
 
@@ -210,3 +211,20 @@ class Database:
 
 
 
+        def password_hash(self, password):
+                salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
+                dk = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), salt, 100000)
+
+                hashed_pass = dk.hex()
+                return hashed_pass
+        
+        
+        
+        def stored_hash(self, userName, password):
+                # cursor = self.CONN.cursor()
+                
+                # query = ("SELECT * FROM users where = %s AND Password = %s")
+                # query_fields = (userName, password_hash(password))
+
+                #cursor.execute(query, query_fields)
+                pass
