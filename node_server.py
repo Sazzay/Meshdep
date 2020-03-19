@@ -61,9 +61,12 @@ while True:
 					os.remove("tmp/%s_%s" % (data['User'], data['Filename']))
 
 				if data and data['Type'] == "Download":
+					print("Entered the download statement.")
 					tbytes = 0
 					node = ns.NHT.find_node_by_mid(data['Node'])
+					print("Found node %s" % node)
 					node_ip = node.fetch_ip()
+					print("Got ip %s" % node_ip)
 					node_port = node.fetch_transfer(
 						"SEND",
 						data['Filename'], 
@@ -72,6 +75,7 @@ while True:
 						int(data['Size']), 
 						data['Overwrite']
 						)
+					print("Got port %s" % node_port)
 
 					fh = serverfilehandler.ServerFileHandler(
 							"RECV", 

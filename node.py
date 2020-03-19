@@ -9,8 +9,9 @@ import time
 
 print("[NODE] Node starting...")
 
-HOST = "127.0.0.1"
-PORT = "6220"
+LOCALHOST = "192.168.1.248" # Your raspberry address
+HOST = "127.0.0.1" # The server to connect to
+PORT = "6220" # Port of the server
 nc = nodeclient.NodeClient(HOST, PORT)
 db = database.Database("81.170.171.18", "8159", "root", "lol123", "meshdep")
 
@@ -34,7 +35,7 @@ while True:
 			port = nc.fetch_avail_port()
 			tid = pckt[6]
 
-			thread = nodefilehandler.NodeFileHandler(pckt[0], HOST, port, pckt[1], pckt[2], pckt[3], pckt[4], pckt[5], db)
+			thread = nodefilehandler.NodeFileHandler(pckt[0], LOCALHOST, port, pckt[1], pckt[2], pckt[3], pckt[4], pckt[5], db)
 			thread.start()
 
 			nc.TRANSFERS.append(thread)

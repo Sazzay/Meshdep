@@ -57,10 +57,13 @@ class ServerFileHandler(threading.Thread):
 			while tbytes < self.LENGTH:
 				recv = self.SOCK.recv(32768)
 				self.enqueue(recv)
-				tbytes += 32768
+				tbytes += len(recv)
 
 			print("[SERVER] Successfully received file %s from %s" % (self.FILENAME, self.HOST))
-			self.SOCK.close()
+			try:
+				self.SOCK.close()
+			except:
+				pass
 		except ConnectionResetError:
 			print("[NODE] NodeFileReceiver socket closed.")
 
@@ -83,8 +86,10 @@ class ServerFileHandler(threading.Thread):
 				tbytes += 32768
 
 			print("[SERVER] Successfully sent file %s to %s" % (self.FILENAME, repr(self)))
-			self.SOCK.close()
+			try:
+				self.SOCK.close()
+			except:
+				pass
 		except ConnectionResetError:
 			print("[SERVER] File transfer operation to transfer node %s failed, remote host closed connection." % repr(self))
-			self.SOCK.close()
 
