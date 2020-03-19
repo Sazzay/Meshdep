@@ -13,11 +13,9 @@ class NodeClient:
 		try:
 			self.ACTIVE = True
 			self.SOCK.connect((self.IP, self.PORT))
-
-			print("[NODE] Successfully established a connection to %s:%s" % (self.IP, self.PORT))
+			utils.log("nodeclient", "[NODE] Successfully established a connection to %s:%s" % (self.IP, self.PORT), True)
 		except:
-			print("[NODE] Failed to establish a connection to %s:%s" % (self.IP, self.PORT))
-
+			utils.log("nodeclient", "[NODE] Failed to establish a connection to %s:%s" % (self.IP, self.PORT), True)
 		self.send_handshake()
 
 	def __repr__(self):
@@ -40,9 +38,8 @@ class NodeClient:
 			packets.Packets.RESP_SPACE, 
 			space).encode()
 			))
-
-		print("[NODE] Received a space request, sending space response: %s" % space)
-
+		utils.log("nodeclient", "[NODE] Received a space request, sending space response: %s" % space, True)
+		
 	def send_transfer_resp(self, tid, port):
 		data = {}
 		data[tid] = port

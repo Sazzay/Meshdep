@@ -75,10 +75,10 @@ class NodeFileHandler(threading.Thread):
 
 			print("Successfully received file %s" % repr(fa))
 			self.DB.queryFileAddition(self.USER, utils.fetch_mid(), self.PATH, self.LENGTH, self.FILENAME)
-			self.SOCK.close()
 		except ConnectionResetError:
 			print("[NODE] NodeFileReceiver socket closed.")
 
+		self.SOCK.close()
 		fa.close()
 
 	def exec_send(self):
@@ -92,7 +92,8 @@ class NodeFileHandler(threading.Thread):
 				data = f.read(32768)
 
 			print("[NODE] Successfully sent the file %s to server to be relayed to %s" % (self.FILENAME, self.USER))
-			self.SOCK.close()
 		except Exception as ex:
 			print("[NODE] Could not complete transfer, exception: %s" % ex)
 			return
+		
+		self.SOCK.close()
