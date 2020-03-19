@@ -21,21 +21,6 @@ $(function() {
 		})
 	})
 
-	$("#regForm").submit(function() {
-		username = $("#regInputEmail").val()
-		password = $("#regInputPassword").val()
-
-		$.ajax({
-			type: 'POST',
-			url: '/api/register',
-			contentType: "application/json; charset=utf-8",
-			data: JSON.stringify({'user': username, 'pass': password}),
-			success: function(result) {
-				alert(JSON.parse(result))
-			}
-		})
-	})
-
 	$("#loginSubButton").click(function() {
 		username = $("#loginInputEmail").val()
 		password = $("#loginInputPassword").val()
@@ -44,7 +29,7 @@ $(function() {
 			async: false,
 			type: 'POST',
 			url: '/api/login',
-			contentType: "application/json; charset=utf-8",
+			contentType: "application/json",
 			data: JSON.stringify({'user': username, 'pass': password}),
 			success: function(result) {
 				if (result == "AUTH") {
@@ -60,7 +45,20 @@ $(function() {
 	$("#regSubButton").click(function() {
 		if ($('#regInputPassword').val() == $('#regInputConfPassword').val()) {
 			$("#regInputConfPassword")[0].setCustomValidity("")
-			$("#regForm").submit();
+			
+			username = $("#regInputEmail").val()
+			password = $("#regInputPassword").val()
+
+			$.ajax({
+				async: true,
+				type: 'POST',
+				url: '/api/register',
+				contentType: "application/json",
+				data: JSON.stringify({'user': username, 'pass': password}),
+				success: function(result) {
+					alert(JSON.parse(result))
+				}
+			})
 		} else {
 			$("#regInputConfPassword")[0].setCustomValidity("Passwords do not match.")
 		}

@@ -16,12 +16,12 @@ class Database:
 				password=self.PASS,
 				host=self.IP,
 				port = self.PORT,
-				database=self.DB)
+				database=self.DB,
+				buffered=True)
 
 			print("[DB] Connection to - %s was successful." % repr(self) )
 		except:
 			print("[DB] Connection failed.")
-			kill(self)
 
 	def __repr__(self):
 		return "IP: %s PORT: %s DB: %s" % (self.IP, self.PORT, self.DB)
@@ -34,9 +34,8 @@ class Database:
 			print("[DB] DB connection halting process failed.")
 
 	def commit(self, query, fields):
-		cursor = self.CONN.cursor()
-
 		try:
+			cursor = self.CONN.cursor()
 			cursor.execute(query, fields)
 			self.CONN.commit()
 			print("[DB] Successfully executed the query: %s, with the fields: %s." %(query, fields))
@@ -55,6 +54,7 @@ class Database:
 		cursor.execute(query, (userName,))
 
 		ret = cursor.fetchone()[0]
+		self.CONN.commit()
 
 		cursor.close()
 		return ret
@@ -169,13 +169,10 @@ class Database:
 		cursor.close()
 
 	def queryUserAdd(self, userName, password):
-		cursor = self.CONN.cursor()
-
-		query = ("INSERT INTO Users "
-			"(UserName, Password)"
-			"VALUES (%(UserName)s, %(Password)s)")
-
+		query = ("INSERT INTO users (UserName, Password) VALUES (%s, %s)")
 		query_fields = (userName, password)
+
+		self.commit(query, query_fields)
 
 	def queryGatherUser(self, userName, password):
 		cursor = self.CONN.cursor()
@@ -184,6 +181,7 @@ class Database:
 		query_fields = (userName, password)
 
 		cursor.execute(query, query_fields)
+		self.CONN.commit()
 		hit = cursor.fetchone()
 
 		cursor.close()
@@ -207,8 +205,6 @@ class Database:
 		data = cursor.fetchall()
 
 		cursor.close()
-
-		print(len(data))
 
 		return data
 
