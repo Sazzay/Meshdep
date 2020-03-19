@@ -91,8 +91,8 @@ while True:
 
 					with open("tmp/%s_%s" % (data['User'], data['Filename']), "wb") as f:
 						while tbytes < int(data['Size']):
-							f.write(fh.dequeue())
-							tbytes += 32768
+							bytesWritten = f.write(fh.dequeue())
+							tbytes += len(bytesWritten)
 
 				if data and data['Type'] == "Delete":
 					node = ns.NHT.find_node_by_mid(data['Node'])
