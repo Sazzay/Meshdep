@@ -96,6 +96,8 @@ while True:
 
 				if data and data['Type'] == "DeleteTmp":
 					while True:
+						time.sleep(10)
+
 						try:
 							os.remove("tmp/" + data['User'] + "_" + data['Filename'])
 							break

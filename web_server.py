@@ -5,10 +5,10 @@ import flask
 import json
 import time
 
-db = database.Database("81.170.171.18", "8159", "johan", "oq29pqxe", "meshdep")
-
 app = flask.Flask("meshdep", template_folder="html")
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+
+db = database.Database("81.170.171.18", "8159", "root", "lol123", "meshdep")
 
 @app.route('/favicon.ico')
 def favicon():
@@ -24,11 +24,13 @@ def index():
 
 @app.route('/api/register', methods=['POST'])
 def register():
-	# should try to add the values provided
-	# in the request (that is username and
-	# password) into the database using 
-	# db.queryUserAdd
-	pass
+	data = json.loads(flask.request.data)
+	user = data['user']
+	password = data['pass']
+
+	db.queryUserAdd(user, password)
+
+	return "Success"
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -129,13 +131,11 @@ def download():
 			f.close()
 			break
 
-	return flask.send_file("tmp/" + user + "_" + fileName, as_attachment=True, attachment_filename=fileName)
+	response = flask.make_response(flask.send_file("tmp/" + user + "_" + fileName, as_attachment=True, attachment_filename=fileName))
+	response.set_cookie('fileDownload', 'true')
+	response.set_cookie('path', '/')
 
+	return response
 
-
-
-
-
-
-app.run(debug=True)
+app.run()
 del db

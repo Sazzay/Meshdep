@@ -26,10 +26,24 @@ $(function() {
   		return new Promise(resolve => setTimeout(resolve, milliseconds))
 	}
 
+	function notifOpInProgress() {
+		new Noty({
+    		type: 'warning',
+    		container: '#notyContainer',
+    		timeout: 6000,
+		    text: "A file operation is already in progress, please wait until it's complete",
+		    animation: {
+		        open: 'animated bounceInLeft', // Animate.css class names
+		        close: 'animated bounceOutLeft' // Animate.css class names
+		    }
+		}).show();
+	}
+
 	// JQuery
 	let files = []
 	let faded = false
-	let fadedText = false
+	let operationInProgress = false
+
 
 	// Initial fade in of loading
 	$("#loadingDiv").animate({opacity: 1.0}, 800);
@@ -53,12 +67,15 @@ $(function() {
     });
 
     $('#uploadFileButton').on('click', function() {
-    	$('#uploadFileField').trigger('click');
+    	if (!operationInProgress) {
+    		$('#uploadFileField').trigger('click');
+    	} else {
+    		notifOpInProgress()
+    	}
 	});
 
 	$('#uploadFileField').change(function() {
 		field = $("#uploadFileField").val()
-
 	})
 
 	$('#uploadFileField').fileupload({
@@ -69,12 +86,56 @@ $(function() {
 		maxNumberOfFiles: 1,
 		sequentialUploads: true,
 		add: function(e, data) {
+			operationInProgress = true
 			data.submit()
+
+			if ($("#progressDiv").css("opacity") == 0.0) {
+				$("#progressDiv").animate({opacity: 1.0}, 800)
+			}
+
+			new Noty({
+	    		type: 'information',
+	    		container: '#notyContainer',
+	    		timeout: 4000,
+			    text: 'Starting file upload... Please stand by.',
+			    animation: {
+			        open: 'animated bounceInLeft', // Animate.css class names
+			        close: 'animated bounceOutLeft' // Animate.css class names
+			    }
+			}).show();
 		},
 		progress: function(e, data) {
 			let progress = parseInt(data.loaded / data.total * 100, 10)
 
-			console.log(progress)
+			$('#progressUlDl').css('width', progress+'%').attr('aria-valuenow', progress); 
+			$('#progressUlDl').text(progress+'%')
+		},
+		done: function(e, data) {
+			// fade out the progress bar and display message
+			operationInProgress = false
+
+			if ($("#progressDiv").css("opacity") > 0.0) {
+				$("#progressDiv").animate({opacity: 0.0}, 800)
+			}
+
+			new Noty({
+	    		type: 'success',
+	    		container: '#notyContainer',
+	    		timeout: 6000,
+			    text: 'File upload was successful, it may take a minute for the file to show up.',
+			    animation: {
+			        open: 'animated bounceInLeft', // Animate.css class names
+			        close: 'animated bounceOutLeft' // Animate.css class names
+			    }
+			}).show();
+		},
+		error: function(e, data) {
+			operationInprogress = false
+
+			if ($("#progressDiv").css("opacity") > 0.0) {
+				$("#progressDiv").animate({opacity: 0.0}, 800)
+			}
+
 		}
 	})
 
@@ -99,7 +160,7 @@ $(function() {
 		for (a of files) {
 			if (!isIdValid(a[0]) && faded) {
 				$("#fileContainerRow").append(
-					"<div id=" + a[0] + " class='card mt-2 ml-1 mr-1' style='width: 200px; height: 250px; display: none;'>"+
+					"<div id=" + a[0] + " class='card mt-2 ml-1 mr-1 border-dark' style='width: 200px; height: 250px; display: none;'>"+
 						"<div class='card-body' style='padding-top: 10px; margin-left: 5px margin'>"+
 							"<h5 class='card-title' style='font-size: 14px'>" + a[6] + "</h5>"+
 	    					"<p style='font-size: 10px'><b>Stored on node: </b>" + a[2] + "</p>"+
@@ -114,25 +175,89 @@ $(function() {
 				$("#" + a[0]).animate({opacity: 1.0}, 1000);
 
 				$("#delBtn" + a[0]).on('click', function() {
-					let file = fetchFileData($(this).attr('id').replace(/\D/g,''), files)
+					if (!operationInProgress) {
+						let file = fetchFileData($(this).attr('id').replace(/\D/g,''), files)
+						operationInProgress = true
 
-					$.ajax({ 
-						type: 'POST',
-						url: '/api/delete',
-						contentType: "application/json; charset=utf-8",
-						data: JSON.stringify({'fileName': file[6], 'node': file[2]})
-					})
+						$.ajax({ 
+							type: 'POST',
+							url: '/api/delete',
+							contentType: "application/json; charset=utf-8",
+							data: JSON.stringify({'fileName': file[6], 'node': file[2]}),
+							success: function(response) {
+								operationInProgress = false
 
+								new Noty({
+						    		type: 'success',
+						    		container: '#notyContainer',
+						    		timeout: 6000,
+								    text: "Successfully deleted the file, it may take a few seconds for the file table to update.",
+								    animation: {
+								        open: 'animated bounceInLeft', // Animate.css class names
+								        close: 'animated bounceOutLeft' // Animate.css class names
+								    }
+								}).show();
+							},
+							error: function(response) {
+								operationInProgress = false
+
+								new Noty({
+						    		type: 'error',
+						    		container: '#notyContainer',
+						    		timeout: 6000,
+								    text: "Something went wrong when trying to delete the file. Please try again later.",
+								    animation: {
+								        open: 'animated bounceInLeft', // Animate.css class names
+								        close: 'animated bounceOutLeft' // Animate.css class names
+								    }
+								}).show();
+							}
+						})
+					} else {
+						notifOpInProgress();
+					}
 				})
 
 				$("#addBtn" + a[0]).on('click', function() {
-					let file = fetchFileData($(this).attr('id').replace(/\D/g,''), files)
-					// JSON.stringify({'fileName': file[6], 'node': file[2], 'size': file[5]}),
+					if (!operationInProgress) {
+						let file = fetchFileData($(this).attr('id').replace(/\D/g,''), files)
+						operationInProgress = true
 
-					$.fileDownload('/api/download', {
-						httpMethod: 'POST',
-						data: {'fileName': file[6], 'node': file[2], 'size': file[5]},
-					})
+						$.fileDownload('/api/download', {
+							httpMethod: 'POST',
+							data: {'fileName': file[6], 'node': file[2], 'size': file[5]},
+							successCallback: function(url) {
+								operationInProgress = false
+
+								new Noty({
+						    		type: 'success',
+						    		container: '#notyContainer',
+						    		timeout: 6000,
+								    text: "Server fetched the file, download starting!",
+								    animation: {
+								        open: 'animated bounceInLeft', // Animate.css class names
+								        close: 'animated bounceOutLeft' // Animate.css class names
+								    }
+								}).show();
+							},
+							failCallback: function(html, url) {
+								operationInProgress = false
+
+								new Noty({
+						    		type: 'error',
+						    		container: '#notyContainer',
+						    		timeout: 6000,
+								    text: "Something went wrong when trying to download the file. Please try again later.",
+								    animation: {
+								        open: 'animated bounceInLeft', // Animate.css class names
+								        close: 'animated bounceOutLeft' // Animate.css class names
+								    }
+								}).show();
+							}
+						})
+					} else {
+						notifOpInProgress();
+					}
 				})
 			}
 
