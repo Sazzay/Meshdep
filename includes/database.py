@@ -74,7 +74,7 @@ class Database:
 		query_fields = (userId, path, filename, machineId)
 
 		cursor.execute(query, query_fields)
-
+		self.CONN.commit()
 		ret = cursor.fetchone()
 		cursor.close()
 
