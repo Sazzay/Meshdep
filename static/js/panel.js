@@ -219,6 +219,17 @@ $(function() {
 				})
 
 				$("#addBtn" + a[0]).on('click', function() {
+					new Noty({
+			    		type: 'information',
+			    		container: '#notyContainer',
+			    		timeout: 8000,
+					    text: 'Attempting to fetch the file from the server. This may take some time for large files.',
+					    animation: {
+					        open: 'animated bounceInLeft', // Animate.css class names
+					        close: 'animated bounceOutLeft' // Animate.css class names
+					    }
+					}).show();
+
 					if (!operationInProgress) {
 						let file = fetchFileData($(this).attr('id').replace(/\D/g,''), files)
 						operationInProgress = true
