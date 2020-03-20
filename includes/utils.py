@@ -15,6 +15,7 @@ def fetchConfig(confName):
 		lines = f.readlines()
 		string = ""
 
+
 		for i in range(len(lines)):
 			string += lines[i]
 
@@ -39,6 +40,7 @@ def fetch_mid():
 			return str(os.popen("cat /etc/machine-id").read()).rstrip()
 		except:
 			log("[NODE] There was an error trying to fetch /etc/machine-id.", True)
+
 
 	if platform.system() == "Windows":
 		try:
