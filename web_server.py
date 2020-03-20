@@ -1,4 +1,5 @@
 from includes import database
+from includes import utils
 import threading
 import os
 import flask
@@ -8,7 +9,9 @@ import time
 app = flask.Flask("meshdep", template_folder="html")
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
-db = database.Database("81.170.171.18", "8159", "root", "lol123", "meshdep")
+config = utils.fetchConfig("server.mconf")
+
+db = database.Database()
 
 @app.route('/favicon.ico')
 def favicon():
@@ -137,5 +140,5 @@ def download():
 
 	return response
 
-app.run(host="192.168.1.112")
+app.run(host=config['IP'])
 del db

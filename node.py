@@ -7,21 +7,17 @@ from includes import database
 import json
 import time
 
-print("[NODE] Node starting...")
+utils.log("[NODE] Node starting...", True)
 
-LOCALHOST = "192.168.1.248" # Your raspberry address
-HOST = "127.0.0.1" # The server to connect to
-PORT = "6220" # Port of the server
-nc = nodeclient.NodeClient(HOST, PORT)
-db = database.Database("81.170.171.18", "8159", "root", "lol123", "meshdep")
-
-#print(db.queryNodesWithFolder("ServerRobban", "/Mina Coola Bilar"))
+config = utils.fetchConfig("node.mconf")
+nc = nodeclient.NodeClient(config['Remote'], config['RemotePort'])
+db = database.Database()
 
 while True:
 	try:
 		recv = nc.SOCK.recv(1024)
 	except ConnectionResetError:
-		print("[NODE] The remote socket closed the connection.")
+		utils.log("[NODE] The remote socket closed the connection.", True)
 		break
 
 	try:
@@ -35,7 +31,7 @@ while True:
 			port = nc.fetch_avail_port()
 			tid = pckt[6]
 
-			thread = nodefilehandler.NodeFileHandler(pckt[0], LOCALHOST, port, pckt[1], pckt[2], pckt[3], pckt[4], pckt[5], db)
+			thread = nodefilehandler.NodeFileHandler(pckt[0], config['IP'], port, pckt[1], pckt[2], pckt[3], pckt[4], pckt[5], db)
 			thread.start()
 
 			nc.TRANSFERS.append(thread)
@@ -50,27 +46,8 @@ while True:
 				nc.send_del_resp(True)
 			except:
 				nc.send_del_resp(False)
-		
-		if rtype == packets.Packets.REQ_ADD_FOLDER:
-			pckt = json.loads(recv.decode())[1]
-
-			try:
-				fileops.add_folder(pckt[0], pckt[1])
-				nc.send_add_folder_resp(True)
-			except:
-				nc.send_add_folder_resp(False)
-
-		if rtype == packets.Packets.REQ_DEL_FOLDER:
-			pckt = json.loads(recv.decode())[1]
-
-			try:
-				fileops.rm_folder(pckt[0], pckt[1])
-				db.queryRemoveFolderContents(utils.fetch_mid(), pckt[0], pckt[1])
-				nc.send_del_folder_resp(True)
-			except:
-				nc.send_del_folder_resp(False)
 	except Exception as ex:
-		print("[NODE] Exception raised while receiving a packet: %s" % ex.args[0])
+		utils.log("[NODE] Exception raised while receiving a packet: %s" % ex.args[0], True)
 		break
 
 del db
