@@ -17,9 +17,6 @@ class ServerFileHandler(threading.Thread):
 		self.PORT = int(port)
 		threading.Thread.__init__(self)
 
-		print(self.HOST)
-		print(self.PORT)
-
 		try:
 			self.SOCK.connect((self.HOST, self.PORT))
 
