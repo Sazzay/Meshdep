@@ -1,0 +1,8 @@
+{
+"Host": "192.168.1.240", 
+"Port": "3306", 
+"User": "node", 
+"Password": "oq29pqxe", 
+"Database": "meshdep", 
+"PoolSize": "10"
+}
