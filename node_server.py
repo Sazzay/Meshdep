@@ -6,13 +6,7 @@ import time
 import os
 import json
 
-config = utils.fetchConfig("server.mconf")
-
-ns = nodeserver.NodeServer(
-	config['IP'], 
-	config['Port'], 
-	config['MaxNodes']
-	)
+ns = nodeserver.NodeServer("127.0.0.1", "6220", 3)
 
 if not os.path.exists('jobs'):
 	os.makedirs('jobs')
@@ -24,7 +18,7 @@ while True:
 	for file in os.listdir('jobs'):
 		try:
 			if file.endswith(".mjob") and len(ns.NHT.THREADS) != 0:
-				utils.log("[SERVER] Found a new job. Relaying to appropriate channel.", True)
+				print("[SERVER] Found a new job.. Extracting data and proceeding with processing...")
 
 				data = None
 
@@ -58,10 +52,21 @@ while True:
 							)
 						fh.start()
 
+						file_data = f.read(32768)
+
+						while file_data:
+							fh.enqueue(file_data)
+							file_data = f.read(32768)
+
+					os.remove("tmp/%s_%s" % (data['User'], data['Filename']))
+
 				if data and data['Type'] == "Download":
+					print("Entered the download statement.")
 					tbytes = 0
 					node = ns.NHT.find_node_by_mid(data['Node'])
+					print("Found node %s" % node)
 					node_ip = node.fetch_ip()
+					print("Got ip %s" % node_ip)
 					node_port = node.fetch_transfer(
 						"SEND",
 						data['Filename'], 
@@ -70,6 +75,7 @@ while True:
 						int(data['Size']), 
 						data['Overwrite']
 						)
+					print("Got port %s" % node_port)
 
 					fh = serverfilehandler.ServerFileHandler(
 							"RECV", 
@@ -82,6 +88,11 @@ while True:
 							data['Overwrite']
 							)
 					fh.start()
+
+					with open("tmp/%s_%s" % (data['User'], data['Filename']), "wb") as f:
+						while tbytes < int(data['Size']): #problem most likely here with tbytes
+							bytesWritten = f.write(fh.dequeue())
+							tbytes += bytesWritten
 
 				if data and data['Type'] == "Delete":
 					node = ns.NHT.find_node_by_mid(data['Node'])
@@ -98,11 +109,6 @@ while True:
 							pass
 		except:
 			pass
-
-	if not ns.isAlive():
-		break
-
-	time.sleep(0.05)
 
 
 

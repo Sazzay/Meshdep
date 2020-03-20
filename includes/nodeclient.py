@@ -13,9 +13,9 @@ class NodeClient:
 		try:
 			self.ACTIVE = True
 			self.SOCK.connect((self.IP, self.PORT))
-			utils.log("[NODE] Successfully established a connection to %s:%s" % (self.IP, self.PORT), True)
+			utils.log("nodeclient", "[NODE] Successfully established a connection to %s:%s" % (self.IP, self.PORT), True)
 		except:
-			utils.log("[NODE] Failed to establish a connection to %s:%s" % (self.IP, self.PORT), True)
+			utils.log("nodeclient", "[NODE] Failed to establish a connection to %s:%s" % (self.IP, self.PORT), True)
 		self.send_handshake()
 
 	def __repr__(self):
@@ -38,7 +38,7 @@ class NodeClient:
 			packets.Packets.RESP_SPACE, 
 			space).encode()
 			))
-		utils.log("[NODE] Received a space request, sending space response: %s" % space, True)
+		utils.log("nodeclient", "[NODE] Received a space request, sending space response: %s" % space, True)
 		
 	def send_transfer_resp(self, tid, port):
 		data = {}
@@ -54,6 +54,20 @@ class NodeClient:
 		self.SOCK.send((
 			packets.fetchSmallPacket(
 			packets.Packets.RESP_DEL,
+			success).encode()
+			))
+
+	def send_add_folder_resp(self, success):
+		self.SOCK.send((
+			packets.fetchSmallPacket(
+			packets.Packets.RESP_ADD_FOLDER,
+			success).encode()
+			))
+
+	def send_del_folder_resp(self, success):
+		self.SOCK.send((
+			packets.fetchSmallPacket(
+			packets.Packets.RESP_DEL_FOLDER,
 			success).encode()
 			))
 	# recv functions #

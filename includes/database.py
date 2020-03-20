@@ -1,95 +1,210 @@
-import mysql.connector.pooling
+import mysql.connector
 from datetime import datetime
 from includes import utils
 
 class Database:
-	def __init__(self):
-		self.config = utils.fetchConfig("db.mconf")
+	def __init__(self, ip, port, user, password, database):
+		self.IP = ip
+		self.PORT = port
+		self.DB = database
+		self.USER = user
+		self.PASS = password
 
-		self.conn_pool = mysql.connector.pooling.MySQLConnectionPool(
-				pool_size=int(self.config['PoolSize']),
-				pool_reset_session=True,
-				user=self.config['User'],
-				password=self.config['Password'],
-				database=self.config['Database'],
-				host=self.config['Host'],
-				port=self.config['Port'],
+		try:
+			self.CONN = mysql.connector.connect(
+				user=self.USER, 
+				password=self.PASS,
+				host=self.IP,
+				port = self.PORT,
+				database=self.DB,
 				buffered=True)
 
+			print("[DB] Connection to - %s was successful." % repr(self) )
+		except:
+			print("[DB] Connection failed.")
+
 	def __repr__(self):
-		return "Pool database connected to %s" % self.config['Host']
+		return "IP: %s PORT: %s DB: %s" % (self.IP, self.PORT, self.DB)
 
 	def __del__(self):
 		try:
-			del self.conn_pool
-			utils.log("[DB] Removing DB pool object and class.", True)
+			self.CONN.close()
+			print("[DB] DB connection halted.")
 		except:
-			pass
+			print("[DB] DB connection halting process failed.")
 
 	def commit(self, query, fields):
-		conn = self.conn_pool.get_connection()
-
 		try:
-			cursor = conn.cursor()
+			cursor = self.CONN.cursor()
 			cursor.execute(query, fields)
-			conn.commit()
-			utils.log("[DB] Successfully executed the query: %s, with the fields: %s." %(query, fields), True)
+			self.CONN.commit()
+			print("[DB] Successfully executed the query: %s, with the fields: %s." %(query, fields))
 		except Exception as ex:
-			utils.log("[DB] Failed to execute the query: %s, with the fields: %s, because of the exception: %s" %(query, fields, ex), True)
+			print("[DB] Failed to execute the query: %s, with the fields: %s, because of the exception: %s" %(query, fields, ex))
 			raise ex
 
 		cursor.close()
-		conn.close()
+
+	# Returns the userId based on the userName (which is always also unique) #
+	def queryUserId(self, userName):
+		cursor = self.CONN.cursor()
+
+		query = "SELECT UserId FROM users WHERE UserName = %s"
+
+		cursor.execute(query, (userName,))
+
+		ret = cursor.fetchone()[0]
+		self.CONN.commit()
+
+		cursor.close()
+		return ret
+
+	# Query that returns a file id to be used when deleting or adding #
+	# files 														  #
+	def queryFileId(self, machineId, userName, path, filename):
+		userId = self.queryUserId(userName)
+
+		if userId == None:
+			print("[DB] Invalid userName provided to queryFileId...")
+			return
+
+		cursor = self.CONN.cursor()
+
+		query = ("SELECT FileId FROM files WHERE UserId = %s AND Path = %s AND Filename = %s AND NodeId = %s")
+		query_fields = (userId, path, filename, machineId)
+
+		cursor.execute(query, query_fields)
+		self.CONN.commit()
+		ret = cursor.fetchone()
+		cursor.close()
+
+		return ret
+
+	# Query that returns an array of nodes that contain the path specified #
+	# Eg: path is "Mina Coola Bilar" will return all nodes containing that #
+	# folder and it's sub folders 										   #
+	def queryNodesWithFolder(self, userName, path):
+		userId = self.queryUserId(userName)
+
+		if userId == None:
+			print("[DB] Invalid userName provided to queryFileId...")
+			return
+
+		cursor = self.CONN.cursor()
+
+		query = ("SELECT NodeId from files WHERE UserId = %s AND Path LIKE %s")
+		query_fields = (userId, path + "%")
+
+		cursor.execute(query, query_fields)
+		ret = cursor.fetchall()
+		cursor.close()
+
+		arr = []
+
+		for i in range(len(ret)):
+			arr.append(ret[i][0].rstrip())
+
+		return arr
+
+	# Query that adds a folder for the user in the database, this can #
+	# then be used to display this back to the user and then he may   #
+	# use it to add files into the folder.							  #
+	def queryFolderAddition(self, userName, path):
+		userId = self.queryUserId(userName)
+
+		if userId == None:
+			print("[DB] Invalid userName provided to queryFileAddition...")
+			raise ValueError
+
+		query = ("INSERT INTO folders (UserId, LastModified, Path) VALUES (%s, %s, %s)")
+		query_fields = (userId, datetime.now(), path)
+
+		self.commit(query, query_fields)
 
 	def queryFileAddition(self, userName, machineId, path, size, fileName):
+		userId = self.queryUserId(userName)
+
+		if userId == None:
+			print("[DB] Invalid userName provided to queryFileAddition...")
+			raise ValueError
+
 		query = ("INSERT INTO files"
-			"(UserName, NodeId, Lastmodified, Path, Size, Filename)"
+			"(UserId, NodeId, Lastmodified, Path, Size, Filename)"
 			"VALUES (%s, %s, %s, %s, %s, %s)")
-		query_fields = (str(userName).rstrip(), str(machineId).rstrip(), datetime.now(), path, size, str(fileName).rstrip())
+		query_fields = (userId, machineId, datetime.now(), path, size, fileName)
 
 		self.commit(query, query_fields)
 
-	def queryFileDeletion(self, machineId, userName, path, fileName):
-		query = "DELETE FROM files WHERE UserName = %s AND Path = %s AND Filename = %s AND NodeId = %s"
-		query_fields = (str(userName).rstrip(), path, str(fileName).rstrip(), str(machineId).rstrip())
+	def queryFileDeletion(self, machineId, userName, path, filename):
+		fileId = self.queryFileId(machineId, userName, path, filename)
+
+		if fileId == None:
+			print("[DB] Could not fetch a appropriate fileId")
+			raise ValueError
+
+		query = "DELETE FROM files WHERE FileId = %s"
+		query_fields = (fileId)
 
 		self.commit(query, query_fields)
+
+	def queryRemoveFolderContents(self, machineId, userName, path):
+		userId = self.queryUserId(userName)
+
+		if userId == None:
+			print("[DB] Invalid userName provided to queryFileAddition...")
+			raise ValueError
+
+		cursor = self.CONN.cursor()
+
+		query = ("DELETE FROM files WHERE UserId = %s AND NodeId = %s AND Path LIKE %s")
+		query_fields = (userId, machineId, path + "%")
+
+		try:
+			cursor.execute(query, query_fields)
+			self.CONN.commit()
+			print("[DB] Removed the folders under %s with user %s" % (path, userName))
+		except Exception as ex:
+			print("[DB] Could not commit the deletion to the database. Exception %s" % ex)
+
+		cursor.close()
 
 	def queryUserAdd(self, userName, password):
 		query = ("INSERT INTO users (UserName, Password) VALUES (%s, %s)")
-		query_fields = (str(userName).rstrip(), str(password).rstrip())
+		query_fields = (userName, password)
 
 		self.commit(query, query_fields)
 
 	def queryGatherUser(self, userName, password):
-		conn = self.conn_pool.get_connection()
-		cursor = conn.cursor()
+		cursor = self.CONN.cursor()
 
 		query = ("SELECT * FROM users WHERE UserName = %s AND Password = %s")
-		query_fields = (str(userName).rstrip(), str(password).rstrip())
+		query_fields = (userName, password)
 
 		cursor.execute(query, query_fields)
-		conn.commit()
-		data = cursor.fetchone()
+		self.CONN.commit()
+		hit = cursor.fetchone()
 
 		cursor.close()
-		conn.close()
 
-		return data
+		return hit
 
 	def queryGatherFiles(self, userName):
-		conn = self.conn_pool.get_connection()
-		cursor = conn.cursor()
+		userId = self.queryUserId(userName)
 
-		query = ("SELECT * FROM files WHERE UserName = %s")
+		if userId == None:
+			print("[DB] Invalid userName provided to queryFileAddition...")
+			raise ValueError
 
-		cursor.execute(query, (str(userName).rstrip(),))
-		conn.commit()
+		cursor = self.CONN.cursor(buffered=True)
+
+		query = ("SELECT * FROM files WHERE UserId = %s")
+
+		cursor.execute(query, (userId,))
+		self.CONN.commit()
 
 		data = cursor.fetchall()
 
 		cursor.close()
-		conn.close()
 
 		return data
 

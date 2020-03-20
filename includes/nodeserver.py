@@ -1,5 +1,4 @@
 from includes import packets
-from includes import utils
 from _thread import *
 import socket
 import threading 
@@ -66,7 +65,7 @@ class NodeHandler(threading.Thread):
 
 		space = {k: v for k, v in sorted(space.items(), key=lambda item: item[1])}
 
-		utils.log("[SERVER] Found the most suitable node as %s" % list(space.keys())[len(space)-1], True)
+		#print("[SERVER] Found the most suitable node as %s" % list(space.keys())[len(space)-1])
 
 		for i in range(len(self.THREADS)):
 			if list(space.keys())[len(space)-1] == self.THREADS[i].MID:
@@ -100,6 +99,8 @@ class NodeThread(threading.Thread):
 		self.SPACE_BUSY = False
 		self.TRANSFER_BUSY = False
 		self.DEL_BUSY = False
+		self.ADD_FOLDER_BUSY = False
+		self.DEL_FOLDER_BUSY = False
 		self.CLIENT = client
 		self.ADDRESS = address
 		self.TRANSFERS = []
@@ -113,7 +114,7 @@ class NodeThread(threading.Thread):
 			try:
 				recv = self.CLIENT.recv(1024)
 			except ConnectionResetError:
-				utils.log("[SERVER] Connection to node %s lost." % repr(self.ADDRESS), True)
+				print("[SERVER] Connection to node %s lost." % repr(self.ADDRESS))
 				break
 			except ConnectionAbortedError:
 				break
@@ -129,9 +130,13 @@ class NodeThread(threading.Thread):
 					self.recv_transfer_resp(recv)
 				if rtype == packets.Packets.RESP_DEL:
 					self.recv_del_resp(recv)
+				if rtype == packets.Packets.RESP_ADD_FOLDER:
+					self.recv_add_folder_resp(recv)
+				if rtype == packets.Packets.RESP_DEL_FOLDER:
+					self.recv_del_folder_resp(recv)
 				# add the other types below
 			except Exception as ex:
-				utils.log("[SERVER] Exception raised in thread: %s" % ex.args[0], True)
+				print("[SERVER] Exception raised in thread: %s" % ex.args[0])
 
 	def generate_tid(self):
 		self.TID += 1
@@ -144,7 +149,9 @@ class NodeThread(threading.Thread):
 	def isBusy(self):
 		while (self.SPACE_BUSY 
 		or self.TRANSFER_BUSY 
-		or self.DEL_BUSY):
+		or self.DEL_BUSY 
+		or self.ADD_FOLDER_BUSY
+		or self.DEL_FOLDER_BUSY):
 			pass
 
 	def fetch_ip(self):
@@ -165,35 +172,55 @@ class NodeThread(threading.Thread):
 				if str(tid) in self.TRANSFERS[i]:
 					ret = self.TRANSFERS[i].get(str(tid))
 					del self.TRANSFERS[i]
+					print(self.TRANSFERS)
 					return ret
 
 			attempts += 1
 			time.sleep(0.5)
 
-		utils.log("[SERVER] Could not fetch a transfer subnode from the node.", True)
+		print("[SERVER] Could not fetch a transfer subnode from the node.")
 
 	def recv_handshake(self, data):
 		self.MID = json.loads(data.decode())[1]
-		utils.log("[SERVER] Got a new node, handshake with %s resulted in MID: %s" % (repr(self.ADDRESS), self.MID), True)
+		print("[SERVER] Got a new node, handshake with %s resulted in MID: %s" % (repr(self.ADDRESS), self.MID))
 
 	def recv_space(self, data):
 		self.SPACE_BUSY = False
 		self.SPACE = json.loads(data.decode())[1]
-		utils.log("[SERVER] Received a response with available node space: %s" % self.SPACE, True)
+		print("[SERVER] Received a response with available node space: %s" % self.SPACE)
 
 	def recv_transfer_resp(self, data):
 		self.TRANSFER_BUSY = False
 		self.TRANSFERS.append(json.loads(data.decode())[1])
-		utils.log("[SERVER] Received a response with an availble transfer node: %s" % json.loads(data.decode())[1], True)
+		print("[SERVER] Received a response with an availble transfer node: %s" % json.loads(data.decode())[1])
 
 	def recv_del_resp(self, data):
 		self.DEL_BUSY = False
 		success = json.loads(data.decode())[1]
 		
 		if success == True:
-			utils.log("[SERVER] Node reports the file deletion was successful.", True)
+			print("[SERVER] Node reports the file deletion was successful.")
 		else:
-			utils.log("[SERVER] Node reports the file deletion failed.", True)
+			print("[SERVER] Node reports the file deletion failed.")
+
+	def recv_add_folder_resp(self, data):
+		self.ADD_FOLDER_BUSY = False
+		success = json.loads(data.decode())[1]
+		
+		if success == True:
+			print("[SERVER] Node reports the folder addition was successful.")
+		else:
+			print("[SERVER] Node reports the folder addition failed.")
+
+	def recv_del_folder_resp(self, data):
+		self.DEL_FOLDER_BUSY = False
+
+		success = json.loads(data.decode())[1]
+		
+		if success == True:
+			print("[SERVER] Node reports the folder deletion was successful.")
+		else:
+			print("[SERVER] Node reports the folder deletion failed.")
 
 	def send_space_req(self):
 		self.isBusy()
@@ -209,12 +236,27 @@ class NodeThread(threading.Thread):
 		data = [userName, path, fileName]
 		self.CLIENT.send((packets.fetchSmallPacket(packets.Packets.REQ_DEL, data)).encode())
 
+	def send_add_folder_req(self, userName, path):
+		self.isBusy()
+
+		self.ADD_FOLDER_BUSY = True
+
+		data = [userName, path]
+		self.CLIENT.send((packets.fetchSmallPacket(packets.Packets.REQ_ADD_FOLDER, data)).encode())
+
+	def send_del_folder_req(self, userName, path):
+		self.isBusy()
+
+		self.DEL_FOLDER_BUSY = True
+
+		data = [userName, path]
+		self.CLIENT.send((packets.fetchSmallPacket(packets.Packets.REQ_DEL_FOLDER, data)).encode())
+
 class NodeServer:
 	def __init__(self, host, port, peers):
 		self.HOST = host
 		self.PORT = int(port)
 		self.PEERS = int(peers)
-		self.ALIVE = True
 
 		try:
 			self.SOCK = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -226,18 +268,14 @@ class NodeServer:
 			self.NHT.daemon = True
 			self.NHT.start()
 
-			utils.log("[SERVER] Opened a NodeHandler & socket on " + repr(self), True)	
+			print("[SERVER] Opened a NodeHandler & socket on " + repr(self))	
 		except:
-			utils.log("[SERVER] Failed to open a socket on " + repr(self), True)
-			self.ALIVE = False
+			print("[SERVER] Failed to open a socket on " + repr(self))
 
 	def __repr__(self):
 		return "NodeServer: %s:%s" % (self.HOST, self.PORT)
 
 	def __del__(self):
 		self.SOCK.close()
-		utils.log("[SERVER] %s shutting down" % repr(self), True)
-
-	def isAlive(self):
-		return self.ALIVE
+		print("[SERVER] %s shutting down" % repr(self))
 

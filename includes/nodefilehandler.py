@@ -26,14 +26,13 @@ class NodeFileHandler(threading.Thread):
 
 		try:
 			self.SOCK = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			self.SOCK.settimeout(10)
 			self.SOCK.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 			self.SOCK.bind((self.HOST, self.PORT))
 			self.SOCK.listen(1)
 
-			utils.log("[NODE] Opened a NodeFileHandler socket on %s" % repr(self) + " waiting on connection...", True)	
+			print("[NODE] Opened a NodeFileHandler socket on %s" % repr(self) + " waiting on connection...")	
 		except:
-			utils.log("[NODE] Failed to open a NodeFileReceiver socket on " + repr(self), True)
+			print("[NODE] Failed to open a NodeFileReceiver socket on " + repr(self))
 
 
 	def __repr__(self):
@@ -41,18 +40,18 @@ class NodeFileHandler(threading.Thread):
 
 	def __del__(self):
 		self.SOCK.close()
-		utils.log("[NODE] %s shutting down" % repr(self), True)
+		print("[NODE] %s shutting down" % repr(self))
 
 	def run(self):
 		try:
 			self.CLIENT, self.ADDR = self.SOCK.accept()
-			utils.log("[NODE] Received a file transmitter from %s" % repr(self.ADDR), True)
+			print("[NODE] Received a file transmitter from %s" % repr(self.ADDR))
 		except:
-			utils.log("[NODE] Failed to receive a connection on file transmitter.", True)
+			print("[NODE] Failed to receive a connection on file transmitter.")
 			return
 
 		if self.CLIENT == None or self.ADDR == None:
-			utils.log("[NODE] Socket connection does not exist...", True)
+			print("[NODE] Socket connection does not exist...")
 			return
 		
 		if self.MODE == "SEND":
@@ -62,7 +61,7 @@ class NodeFileHandler(threading.Thread):
 			self.exec_receive()
 			return
 
-		utils.log("[NODE] Invalid mode was specified in NodeFileHandler. Returning...", True)
+		print("[NODE] Invalid mode was specified in NodeFileHandler. Returning...")
 
 	def exec_receive(self):
 		fa = fileops.FileAdder(self.USER, self.FILENAME, self.PATH)
@@ -74,10 +73,10 @@ class NodeFileHandler(threading.Thread):
 				fa.write(recv)
 				tbytes += len(recv)
 
-			utils.log("Successfully received file %s" % repr(fa), True)
+			print("Successfully received file %s" % repr(fa))
 			self.DB.queryFileAddition(self.USER, utils.fetch_mid(), self.PATH, self.LENGTH, self.FILENAME)
 		except ConnectionResetError:
-			utils.log("[NODE] NodeFileReceiver socket closed.", True)
+			print("[NODE] NodeFileReceiver socket closed.")
 
 		self.SOCK.close()
 		fa.close()
@@ -92,9 +91,9 @@ class NodeFileHandler(threading.Thread):
 				self.CLIENT.send(data)
 				data = f.read(32768)
 
-			utils.log("[NODE] Successfully sent the file %s to server to be relayed to %s" % (self.FILENAME, self.USER), True)
+			print("[NODE] Successfully sent the file %s to server to be relayed to %s" % (self.FILENAME, self.USER))
 		except Exception as ex:
-			utils.log("[NODE] Could not complete transfer, exception: %s" % ex, True)
+			print("[NODE] Could not complete transfer, exception: %s" % ex)
 			return
 		
 		self.SOCK.close()

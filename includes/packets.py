@@ -19,13 +19,13 @@ def fetchReqPacket(packetType):
 	if (isinstance(packetType, Packets)):
 		return json.dumps([packetType])
 	else:
-		utils.log("[PACKETS] Packets type mismatch.", True)
+		print("[PACKETS] Packets type mismatch.")
 
 def fetchSmallPacket(packetType, data):
 	if (isinstance(packetType, Packets)):
 		if (sys.getsizeof(data) + sys.getsizeof(packetType)) > 1024:
-			utils.log("[PACKETS] The amount of data has exceeded the maximum of 1024 bytes", True)
+			print("[PACKETS] The amount of data has exceeded the maximum of 1024 bytes")
 		else:
 			return json.dumps([packetType, data])
 	else:
-		utils.log("[PACKETS] Packets type mismatch.", True)
+		print("[PACKETS] Packets type mismatch.")

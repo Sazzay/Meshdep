@@ -3,32 +3,35 @@ import os
 import platform
 import subprocess
 import psutil
-import json
 
-def fetchConfig(confName):
-	if (confName != "db.mconf" and confName != "node.mconf" and confName != "server.mconf"):
-		raise ValueError("the configuration %s is invalid. Valid names are: db.mconf, node.mconf and server.mconf. Find default templates on https://github.com/Sazzay/Meshdep/wiki/Config-templates" % confName)
+def get_config_val(filename, key):
+	try:
+		file = open(filename)
 
-	data = None
+		lines = file.readline()
 
-	with open("conf/%s" % confName, "r") as f:
-		lines = f.readlines()
-		string = ""
+		while lines:
+			if key in lines:
+				lines = lines.partition(key)[2]
+				return lines
+				break
+	except:
+		print("No configuration file was found, creating sample configuration file...")
+		file = open('config.txt', 'w+')
+		file.write("DB_IP = 127.0.0.1\nDB_PORT = 8159\nDB_USER = root\nDB_PASS = admin\nDB_DATABASE = meshdep\n\nSERVER_IP = 127.0.0.1\nSERVER_PORT = 6220\nSERVER_MAX_NODES = 3\n\nNODE_TRANSFER_STARTPORT = 7430\n")
+		return "Configuration file, config.txt, has been created. Change the default values to accurate values. "
+	finally:
+		file.close()
 
-		for i in range(len(lines)):
-			string += lines[i]
-
-	return json.loads(string)
-
-def log(string, boolean):
-	f = open("log.txt", "a")
-
-	f.write("[" + str(datetime.now()) + "] - " + string + "\n")
+def log(prefix, string, boolean):
+	f = open(prefix + "_log.txt", "a")
 
 	if boolean == True:
+		f.write(string + " -- " + str(datetime.now()) + "\n")
 		print(string)
-	
-	f.close()
+	else:
+		pass
+		f.close()
 
 def fetch_avail_space():
 	return psutil.disk_usage('/').free
@@ -36,12 +39,12 @@ def fetch_avail_space():
 def fetch_mid():
 	if platform.system() == "Linux":
 		try:
-			return str(os.popen("cat /etc/machine-id").read()).rstrip()
+			return os.popen("cat /etc/machine-id").read()
 		except:
-			log("[NODE] There was an error trying to fetch /etc/machine-id.", True)
+			print("[NODE] There was an error trying to fetch /etc/machine-id.")
 
 	if platform.system() == "Windows":
 		try:
 			return subprocess.check_output('wmic csproduct get uuid').decode().split('\n')[1].strip()
 		except:
-			log("[NODE] Subprocess WMIC failed to fetch /etc/machine-id UUID equilivent.", True)
+			print("[NODE] Subprocess WMIC failed to fetch /etc/machine-id UUID equilivent.")
