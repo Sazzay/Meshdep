@@ -30,11 +30,10 @@ class NodeFileHandler(threading.Thread):
 			self.SOCK.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 			self.SOCK.bind((self.HOST, self.PORT))
 			self.SOCK.listen(1)
-
+      
 			utils.log("[NODE] Opened a NodeFileHandler socket on %s" % repr(self) + " waiting on connection...", True)	
 		except:
 			utils.log("[NODE] Failed to open a NodeFileReceiver socket on " + repr(self), True)
-
 
 	def __repr__(self):
 		return "NodeFileReceiver: %s:%s" % (self.HOST, self.PORT)
@@ -61,7 +60,7 @@ class NodeFileHandler(threading.Thread):
 		if self.MODE == "RECV":
 			self.exec_receive()
 			return
-
+    
 		utils.log("[NODE] Invalid mode was specified in NodeFileHandler. Returning...", True)
 
 	def exec_receive(self):
@@ -91,7 +90,7 @@ class NodeFileHandler(threading.Thread):
 			while data:
 				self.CLIENT.send(data)
 				data = f.read(32768)
-
+        
 			utils.log("[NODE] Successfully sent the file %s to server to be relayed to %s" % (self.FILENAME, self.USER), True)
 		except Exception as ex:
 			utils.log("[NODE] Could not complete transfer, exception: %s" % ex, True)
