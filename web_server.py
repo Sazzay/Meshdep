@@ -5,11 +5,13 @@ import os
 import flask
 import json
 import time
+import re
+
+utils.initialConfig("server")
+config = utils.fetchConfig("server.mconf")
 
 app = flask.Flask("meshdep", template_folder="html")
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
-
-config = utils.fetchConfig("server.mconf")
 
 db = database.Database()
 
@@ -58,6 +60,27 @@ def fetch_files():
 def upload():
 	user = flask.session['username']
 	file = flask.request.files['file']
+
+	if utils.doesTmpFileExist(user, file.filename):
+		return json.dumps({'status': 'fileintransfer'})
+
+	if (len(db.queryGatherSpecificFile(user, file.filename)) > 0):
+		regExMatch = re.search('[_]\d+[.]', file.filename)
+
+		if (regExMatch):
+			s = regExMatch.span()
+			file.filename = file.filename[:s[0]] + "_" + str(int(file.filename[s[0]+1:s[1]-1]) + 1)
+		else:
+			ss = file.filename.split(".")
+
+			if (len(ss) >= 2):
+				file.filename = ss[len(ss)-2] + "_1" + "." + ss[len(ss)-1]
+			else:
+				file.filename = file.filename + "_1"
+
+
+		utils.log("[WEB SERVER] A naming collision occured, altered name to %s" % file.filename, True)
+
 	file.save("tmp/" + user + "_" + file.filename)
 	size = os.path.getsize("tmp/" + user + "_" + file.filename)
 	overwrite = "True"
@@ -71,10 +94,9 @@ def upload():
 		if not os.path.isfile('jobs/%s.mjob' % str(i)):
 			f = open('jobs/%s.mjob' % str(i), "w")
 			f.write(data)
-			return json.dumps("Success")
+			return json.dumps({'status': 'success'})
 
-
-	return json.dumps("Failed, exceeded the maximum amount of queued jobs")
+	return json.dumps({'status': 'serveroor'})
 
 @app.route('/api/delete', methods=['POST'])
 def delete():
@@ -93,9 +115,9 @@ def delete():
 			f = open('jobs/%s.mjob' % str(i), "w")
 			f.write(data)
 			f.close()
-			return json.dumps("Success")
+			return '', 200
 
-	return json.dumps("Failed, exceeded the maximum amount of queued jobs")
+	return '', 500
 
 @app.route('/api/download', methods=['POST'])
 def download():

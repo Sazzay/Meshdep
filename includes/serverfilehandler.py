@@ -49,7 +49,7 @@ class ServerFileHandler(threading.Thread):
 			with open("tmp/%s_%s" % (self.USER, self.FILENAME), "wb") as f:
 				while tbytes < self.LENGTH:
 					bytesWritten = f.write(self.SOCK.recv(32768))
-					tbytes += len(recv)
+					tbytes += bytesWritten
 
 			utils.log("[SERVER] Successfully received file %s from %s" % (self.FILENAME, self.HOST), True)
 

@@ -19,7 +19,7 @@ while True:
 	except ConnectionResetError:
 		utils.log("[NODE] The remote socket closed the connection.", True)
 		break
-
+		
 	try:
 		rtype = packets.Packets(json.loads(recv.decode())[0])
 
