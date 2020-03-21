@@ -93,6 +93,28 @@ class Database:
 
 		return data
 
+	def queryGatherSpecificFile(self, userName, fileName):
+		conn = self.conn_pool.get_connection()
+		cursor = conn.cursor()
+
+		query = ("SELECT * FROM files WHERE UserName = %s AND Filename = %s")
+
+		cursor.execute(query, (str(userName).rstrip(), fileName))
+		conn.commit()
+
+		data = cursor.fetchall()
+
+		cursor.close()
+		conn.close()
+
+		return data
+
+	def queryNodeProgress(self, userName, nodeId, fileName, progress):
+		query = ("UPDATE files SET NodeProgress = %s WHERE UserName = %s AND Filename = %s AND NodeId = %s")
+		query_fields = (progress, userName, fileName, nodeId)
+
+		self.commit(query, query_fields)
+
 def password_hash(self, password):
 	salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
 	dk = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), salt, 100000)

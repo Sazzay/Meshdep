@@ -112,13 +112,7 @@ class NodeThread(threading.Thread):
 		while True:
 			try:
 				recv = self.CLIENT.recv(1024)
-			except ConnectionResetError:
-				utils.log("[SERVER] Connection to node %s lost." % repr(self.ADDRESS), True)
-				break
-			except ConnectionAbortedError:
-				break
 
-			try:
 				rtype = packets.Packets(json.loads(recv.decode())[0])
 
 				if (rtype == packets.Packets.HANDSHAKE):
@@ -129,9 +123,11 @@ class NodeThread(threading.Thread):
 					self.recv_transfer_resp(recv)
 				if rtype == packets.Packets.RESP_DEL:
 					self.recv_del_resp(recv)
-				# add the other types below
-			except Exception as ex:
-				utils.log("[SERVER] Exception raised in thread: %s" % ex.args[0], True)
+			except ConnectionResetError:
+				utils.log("[SERVER] Connection to node %s lost." % repr(self.ADDRESS), True)
+				break
+			except ConnectionAbortedError:
+				break
 
 	def generate_tid(self):
 		self.TID += 1

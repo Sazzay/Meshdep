@@ -66,15 +66,25 @@ class NodeFileHandler(threading.Thread):
 	def exec_receive(self):
 		fa = fileops.FileAdder(self.USER, self.FILENAME, self.PATH)
 		tbytes = 0
+		count = 0
+		breakPercent = self.LENGTH * 0.1
 
 		try:
+			self.DB.queryFileAddition(self.USER, self.MID, self.PATH, self.LENGTH, self.FILENAME)
+
 			while tbytes < self.LENGTH:
 				recv = self.CLIENT.recv(32768)
 				fa.write(recv)
 				tbytes += len(recv)
+				count += len(recv)
+
+				if (count >= breakPercent):
+					count = 0;
+					self.DB.queryNodeProgress(self.USER, self.MID, self.FILENAME, (tbytes/self.LENGTH) * 100)
+
+			self.DB.queryNodeProgress(self.USER, self.MID, self.FILENAME, 100)
 
 			utils.log("Successfully received file %s" % repr(fa), True)
-			self.DB.queryFileAddition(self.USER, utils.fetch_mid(), self.PATH, self.LENGTH, self.FILENAME)
 		except ConnectionResetError:
 			utils.log("[NODE] NodeFileReceiver socket closed.", True)
 

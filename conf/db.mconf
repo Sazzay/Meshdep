@@ -3,6 +3,6 @@
 "Port": "3306", 
 "User": "node", 
 "Password": "oq29pqxe", 
-"Database": "meshdep", 
+"Database": "meshdepdev", 
 "PoolSize": "10"
 }

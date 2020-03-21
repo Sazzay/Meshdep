@@ -39,6 +39,19 @@ $(function() {
 		}).show();
 	}
 
+	function notifNodeInProgress() {
+		new Noty({
+    		type: 'error',
+    		container: '#notyContainer',
+    		timeout: 8000,
+		    text: 'Please wait until the node finishes recieving your file before attempting to download or delete',
+		    animation: {
+		        open: 'animated bounceInLeft', // Animate.css class names
+		        close: 'animated bounceOutLeft' // Animate.css class names
+		    }
+		}).show();
+	}
+
 	// JQuery
 	let files = []
 	let faded = false
@@ -118,16 +131,44 @@ $(function() {
 				$("#progressDiv").animate({opacity: 0.0}, 800)
 			}
 
-			new Noty({
-	    		type: 'success',
-	    		container: '#notyContainer',
-	    		timeout: 6000,
-			    text: 'File upload was successful, it may take a minute for the file to show up.',
-			    animation: {
-			        open: 'animated bounceInLeft', // Animate.css class names
-			        close: 'animated bounceOutLeft' // Animate.css class names
-			    }
-			}).show();
+			if (data.result['status'] == 'fileintransfer') {
+				new Noty({
+		    		type: 'error',
+		    		container: '#notyContainer',
+		    		timeout: 8000,
+				    text: 'A file with that name is already being transfered, please try again later.',
+				    animation: {
+				        open: 'animated bounceInLeft', // Animate.css class names
+				        close: 'animated bounceOutLeft' // Animate.css class names
+				    }
+				}).show();
+			}
+
+			if (data.result['status'] == 'success') {
+				new Noty({
+		    		type: 'success',
+		    		container: '#notyContainer',
+		    		timeout: 6000,
+				    text: 'File upload was successful, it may take a minute for the upload to complete.',
+				    animation: {
+				        open: 'animated bounceInLeft', // Animate.css class names
+				        close: 'animated bounceOutLeft' // Animate.css class names
+				    }
+				}).show();
+			}
+
+			if (data.result['status'] == 'serveroor') {
+				new Noty({
+		    		type: 'warning',
+		    		container: '#notyContainer',
+		    		timeout: 6000,
+				    text: 'Server is out of resources, please wait for a minute before trying again.',
+				    animation: {
+				        open: 'animated bounceInLeft', // Animate.css class names
+				        close: 'animated bounceOutLeft' // Animate.css class names
+				    }
+				}).show();
+			}
 		},
 		error: function(e, data) {
 			operationInprogress = false
@@ -135,7 +176,6 @@ $(function() {
 			if ($("#progressDiv").css("opacity") > 0.0) {
 				$("#progressDiv").animate({opacity: 0.0}, 800)
 			}
-
 		}
 	})
 
@@ -161,6 +201,7 @@ $(function() {
 			if (!isIdValid(a[0]) && faded) {
 				$("#fileContainerRow").append(
 					"<div id=" + a[0] + " class='card mt-2 ml-1 mr-1 border-dark' style='width: 200px; height: 250px; display: none;'>"+
+					"<img id=fileProgress_" + a[0] + " src='/static/img/meshdep-loading.gif' style='max-width: 128px; max-height: 128px; position: absolute; left: 32px; top: 64px'>"+
 						"<div class='card-body' style='padding-top: 10px; margin-left: 5px margin'>"+
 							"<h5 class='card-title' style='font-size: 14px'>" + a[6] + "</h5>"+
 	    					"<p style='font-size: 10px'><b>Stored on node: </b>" + a[2] + "</p>"+
@@ -170,13 +211,20 @@ $(function() {
 	    					"<input id=addBtn" + a[0] + " class='logo-vsmall' type='image' style='max-width: 32px; max-height:32px; position: absolute; bottom: 5px; right: 10px' src='/static/img/meshdep-download.png' alt='Download'>"+
 	  					"</div>"+
 					"</div>")
+				$("#fileProgress_" + a[0]).css('opacity', '0.0')
 				$("#" + a[0]).css('opacity', '0.0')
 				$("#" + a[0]).css('display', 'block')
-				$("#" + a[0]).animate({opacity: 1.0}, 1000);
+				$("#" + a[0]).animate({opacity: 0.7}, 700);
 
 				$("#delBtn" + a[0]).on('click', function() {
 					if (!operationInProgress) {
 						let file = fetchFileData($(this).attr('id').replace(/\D/g,''), files)
+
+						if (file[7] != 100) {
+							notifNodeInProgress();
+							return
+						}
+
 						operationInProgress = true
 
 						$.ajax({ 
@@ -219,19 +267,25 @@ $(function() {
 				})
 
 				$("#addBtn" + a[0]).on('click', function() {
-					new Noty({
-			    		type: 'information',
-			    		container: '#notyContainer',
-			    		timeout: 8000,
-					    text: 'Attempting to fetch the file from the server. This may take some time for large files.',
-					    animation: {
-					        open: 'animated bounceInLeft', // Animate.css class names
-					        close: 'animated bounceOutLeft' // Animate.css class names
-					    }
-					}).show();
-
 					if (!operationInProgress) {
 						let file = fetchFileData($(this).attr('id').replace(/\D/g,''), files)
+
+						if (file[7] != 100) {
+							notifNodeInProgress();
+							return
+						} else {
+							new Noty({
+					    		type: 'information',
+					    		container: '#notyContainer',
+					    		timeout: 8000,
+							    text: 'Attempting to fetch the file from the server. This may take some time for large files.',
+							    animation: {
+							        open: 'animated bounceInLeft', // Animate.css class names
+							        close: 'animated bounceOutLeft' // Animate.css class names
+							    }
+							}).show();
+						}
+
 						operationInProgress = true
 
 						$.fileDownload('/api/download', {
@@ -270,6 +324,17 @@ $(function() {
 						notifOpInProgress();
 					}
 				})
+			}
+
+			if (a[7] == 100) {
+				if ($("#" + a[0]).css("opacity") == 0.7) {
+					$("#" + a[0]).animate({opacity: 1.0}, 300);
+					$("#fileProgress_" + a[0]).animate({opacity: 0.0}, 300);
+				}
+			} else {
+				if ($("#fileProgress_" + a[0]).css("opacity") == 0.0) {
+					$("#fileProgress_" + a[0]).animate({opacity: 1.0}, 300);
+				}
 			}
 
 			fileIds.push(a[0])
