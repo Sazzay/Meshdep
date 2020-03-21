@@ -9,6 +9,8 @@ import time
 
 utils.log("[NODE] Node starting...", True)
 
+utils.initialConfig("node")
+utils.initialConfig("db")
 config = utils.fetchConfig("node.mconf")
 nc = nodeclient.NodeClient(config['Remote'], config['RemotePort'])
 db = database.Database()

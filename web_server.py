@@ -8,6 +8,7 @@ import time
 import re
 
 utils.initialConfig("server")
+utils.initialConfig("db")
 config = utils.fetchConfig("server.mconf")
 
 app = flask.Flask("meshdep", template_folder="html")
